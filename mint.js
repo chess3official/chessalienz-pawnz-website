@@ -3,9 +3,13 @@ let walletConnected = false;
 let walletAddress = null;
 
 // Mint price and limits
-const MINT_PRICE = 2; // SOL per NFT
+const STARTING_MINT_PRICE = 3; // Starting SOL per NFT (reverse auction)
+const PRICE_DECREASE = 0.03; // SOL decrease per interval
+const PRICE_INTERVAL = 60000; // 60 seconds in milliseconds
+let MINT_PRICE = STARTING_MINT_PRICE; // Current mint price
 const MAX_MINT_PER_WALLET = 10; // Maximum mints per wallet
 let walletMintCount = 0; // Track mints for current wallet
+let lastMintTime = Date.now(); // Track last mint for price updates
 
 // DOM elements
 const connectWalletBtn = document.getElementById('connect-wallet-btn');
@@ -130,6 +134,9 @@ async function mintNFT() {
         // Update wallet mint count
         walletMintCount += quantity;
         
+        // Reset auction price on successful mint
+        onMintSuccess();
+        
         showMessage(`Successfully minted ${quantity} Chessalienz: Pawnz NFT${quantity > 1 ? 's' : ''}! (${walletMintCount}/${MAX_MINT_PER_WALLET} used)`, 'success');
         
         // Update minted count (this should come from your smart contract)
@@ -184,3 +191,44 @@ if (isPhantomInstalled()) {
         updateWalletUI();
     });
 }
+
+// Reverse Auction Price Update
+function updateAuctionPrice() {
+    const currentTime = Date.now();
+    const timeSinceLastMint = currentTime - lastMintTime;
+    const intervalsElapsed = Math.floor(timeSinceLastMint / PRICE_INTERVAL);
+    
+    if (intervalsElapsed > 0) {
+        // Decrease price by 0.03 SOL per interval
+        const newPrice = STARTING_MINT_PRICE - (intervalsElapsed * PRICE_DECREASE);
+        // Don't go below a minimum price (e.g., 0.5 SOL)
+        MINT_PRICE = Math.max(0.5, newPrice);
+        
+        // Update price display
+        const priceElement = document.getElementById('current-price');
+        if (priceElement) {
+            priceElement.textContent = `${MINT_PRICE.toFixed(2)} SOL`;
+        }
+        
+        // Update total price
+        updateTotalPrice();
+    }
+}
+
+// Reset price when a mint occurs
+function onMintSuccess() {
+    lastMintTime = Date.now();
+    MINT_PRICE = STARTING_MINT_PRICE;
+    
+    // Update price display
+    const priceElement = document.getElementById('current-price');
+    if (priceElement) {
+        priceElement.textContent = `${MINT_PRICE.toFixed(2)} SOL`;
+    }
+}
+
+// Update price every second
+setInterval(updateAuctionPrice, 1000);
+
+// Initial price update
+updateAuctionPrice();

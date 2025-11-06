@@ -488,10 +488,20 @@ body::after {
 }
 
 .roadmap-item li:before {
-    content: "✓";
+    content: "⟳";
     position: absolute;
     left: 0;
     color: var(--secondary-color);
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* Community Section */
@@ -534,6 +544,28 @@ body::after {
 /* About Section */
 .about {
     background: var(--card-bg);
+}
+
+.chess3-logo {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.chess3-logo img {
+    max-width: 200px;
+    height: auto;
+    filter: drop-shadow(0 0 20px rgba(153, 69, 255, 0.3));
+}
+
+.disclaimer {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    opacity: 0.8;
+    font-style: italic;
+    padding: 1rem;
+    background: rgba(153, 69, 255, 0.05);
+    border-left: 3px solid var(--primary-color);
+    border-radius: 4px;
 }
 
 .about-content {
@@ -794,6 +826,51 @@ body::after {
 .feature p {
     color: var(--text-secondary);
     font-size: 0.9rem;
+}
+
+/* Character Roles */
+.character-roles {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.character-roles h3 {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.roles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 0.6rem 1rem;
+    background: var(--dark-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    transition: all 0.3s;
+    text-transform: capitalize;
+}
+
+.role-badge:hover {
+    border-color: var(--primary-color);
+    background: rgba(153, 69, 255, 0.1);
+    transform: translateY(-2px);
 }
 
 /* Footer */

@@ -2,8 +2,10 @@
 let walletConnected = false;
 let walletAddress = null;
 
-// Mint price (update this with your actual price)
+// Mint price and limits
 const MINT_PRICE = 2; // SOL per NFT
+const MAX_MINT_PER_WALLET = 10; // Maximum mints per wallet
+let walletMintCount = 0; // Track mints for current wallet
 
 // DOM elements
 const connectWalletBtn = document.getElementById('connect-wallet-btn');
@@ -107,6 +109,14 @@ async function mintNFT() {
     }
 
     const quantity = parseInt(mintQuantity.value);
+    
+    // Check wallet mint limit
+    if (walletMintCount + quantity > MAX_MINT_PER_WALLET) {
+        const remaining = MAX_MINT_PER_WALLET - walletMintCount;
+        showMessage(`Wallet limit reached! You can only mint ${remaining} more NFT${remaining !== 1 ? 's' : ''}.`, 'error');
+        return;
+    }
+    
     mintBtn.disabled = true;
     mintBtn.textContent = 'MINTING...';
 
@@ -117,11 +127,24 @@ async function mintNFT() {
         // Simulate minting delay
         await new Promise(resolve => setTimeout(resolve, 2000));
         
-        showMessage(`Successfully minted ${quantity} Chessalienz: Pawnz NFT${quantity > 1 ? 's' : ''}!`, 'success');
+        // Update wallet mint count
+        walletMintCount += quantity;
+        
+        showMessage(`Successfully minted ${quantity} Chessalienz: Pawnz NFT${quantity > 1 ? 's' : ''}! (${walletMintCount}/${MAX_MINT_PER_WALLET} used)`, 'success');
         
         // Update minted count (this should come from your smart contract)
         const currentMinted = parseInt(mintedCount.textContent);
         mintedCount.textContent = currentMinted + quantity;
+        
+        // Update max quantity if approaching limit
+        const remaining = MAX_MINT_PER_WALLET - walletMintCount;
+        if (remaining < 10) {
+            mintQuantity.max = remaining;
+            if (parseInt(mintQuantity.value) > remaining) {
+                mintQuantity.value = remaining;
+                updateTotalPrice();
+            }
+        }
         
     } catch (err) {
         console.error('Minting error:', err);

@@ -44,25 +44,43 @@ const sideNavLinks = document.querySelectorAll('#side-nav a[href^="#"]');
 
 function highlightActiveSection() {
     const scrollPosition = window.pageYOffset + 200; // Offset for better UX
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
     
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.offsetHeight;
-        const sectionId = section.getAttribute('id');
-        
-        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
-            // Remove active class from all links
-            sideNavLinks.forEach(link => {
-                link.classList.remove('active');
-            });
-            
-            // Add active class to current section link
-            const activeLink = document.querySelector(`#side-nav a[href="#${sectionId}"]`);
-            if (activeLink) {
-                activeLink.classList.add('active');
-            }
+    // Check if we're at the bottom of the page
+    const isAtBottom = (window.pageYOffset + windowHeight) >= documentHeight - 50;
+    
+    if (isAtBottom) {
+        // Highlight the last section (Community)
+        sideNavLinks.forEach(link => {
+            link.classList.remove('active');
+        });
+        const lastSection = sections[sections.length - 1];
+        const lastSectionId = lastSection.getAttribute('id');
+        const lastLink = document.querySelector(`#side-nav a[href="#${lastSectionId}"]`);
+        if (lastLink) {
+            lastLink.classList.add('active');
         }
-    });
+    } else {
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight;
+            const sectionId = section.getAttribute('id');
+            
+            if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                // Remove active class from all links
+                sideNavLinks.forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                // Add active class to current section link
+                const activeLink = document.querySelector(`#side-nav a[href="#${sectionId}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+            }
+        });
+    }
 }
 
 // Run on scroll

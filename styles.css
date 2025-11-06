@@ -552,7 +552,7 @@ body::after {
 }
 
 .chess3-logo img {
-    max-width: 200px;
+    max-width: 300px;
     height: auto;
     filter: drop-shadow(0 0 20px rgba(153, 69, 255, 0.3));
 }

@@ -3,7 +3,7 @@ let walletConnected = false;
 let walletAddress = null;
 
 // Mint price (update this with your actual price)
-const MINT_PRICE = 0.5; // SOL per NFT
+const MINT_PRICE = 2; // SOL per NFT
 
 // DOM elements
 const connectWalletBtn = document.getElementById('connect-wallet-btn');

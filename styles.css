@@ -873,6 +873,12 @@ body::after {
     transform: translateY(-2px);
 }
 
+.role-badge-centered {
+    grid-column: 1 / -1;
+    max-width: 150px;
+    margin: 0 auto;
+}
+
 /* Footer */
 .footer {
     background: var(--card-bg);

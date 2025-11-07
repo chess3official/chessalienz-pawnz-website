@@ -15,7 +15,8 @@ const PRICE_INTERVAL = 60000; // 60 seconds in milliseconds
 let MINT_PRICE = STARTING_MINT_PRICE; // Current mint price
 const MAX_MINT_PER_WALLET = 10; // Maximum mints per wallet
 let walletMintCount = 0; // Track mints for current wallet
-let lastMintTime = Date.now(); // Track last mint for price updates
+let lastMintTime = null; // Will be fetched from blockchain
+let auctionStartTime = null; // Auction start time from blockchain
 
 // DOM elements
 const connectWalletBtn = document.getElementById('connect-wallet-btn');
@@ -126,7 +127,7 @@ increaseBtn.addEventListener('click', () => {
     }
 });
 
-// Fetch current minted count from Candy Machine
+// Fetch current minted count and auction timing from Candy Machine
 async function updateMintedCount() {
     try {
         const candyMachine = await metaplex.candyMachines().findByAddress({
@@ -135,8 +136,47 @@ async function updateMintedCount() {
         
         const minted = candyMachine.itemsMinted.toString();
         mintedCount.textContent = minted;
+        
+        // Get the Candy Machine account to fetch timestamps
+        const candyMachineAccount = await connection.getAccountInfo(
+            new solanaWeb3.PublicKey(CANDY_MACHINE_ID)
+        );
+        
+        // If no mints yet, use a fixed start time (deployment time)
+        // For production, you'd store this in your config or on-chain
+        if (!auctionStartTime) {
+            // Use a fixed auction start time - update this to your actual launch time
+            // For now, using Candy Machine deployment time as reference
+            auctionStartTime = Date.now(); // This will be synced on first load
+            
+            // Try to get last mint timestamp from recent transactions
+            const signatures = await connection.getSignaturesForAddress(
+                new solanaWeb3.PublicKey(CANDY_MACHINE_ID),
+                { limit: 1 }
+            );
+            
+            if (signatures.length > 0) {
+                const tx = await connection.getTransaction(signatures[0].signature, {
+                    maxSupportedTransactionVersion: 0
+                });
+                if (tx && tx.blockTime) {
+                    lastMintTime = tx.blockTime * 1000; // Convert to milliseconds
+                    console.log('Last mint time from blockchain:', new Date(lastMintTime));
+                }
+            }
+            
+            // If no mints yet, set lastMintTime to auction start
+            if (!lastMintTime) {
+                lastMintTime = auctionStartTime;
+            }
+        }
+        
     } catch (err) {
         console.error('Error fetching minted count:', err);
+        // Fallback to current time if blockchain fetch fails
+        if (!lastMintTime) {
+            lastMintTime = Date.now();
+        }
     }
 }
 
@@ -277,6 +317,7 @@ function updateAuctionPrice() {
 
 // Reset price when a mint occurs
 function onMintSuccess() {
+    // Update lastMintTime to current time (will be synced from blockchain on next refresh)
     lastMintTime = Date.now();
     MINT_PRICE = STARTING_MINT_PRICE;
     
@@ -285,10 +326,61 @@ function onMintSuccess() {
     if (priceElement) {
         priceElement.textContent = `${MINT_PRICE.toFixed(2)} SOL`;
     }
+    
+    // Broadcast the mint event so other users can sync
+    // In production, this would be handled by polling the blockchain
+    console.log('Mint successful at:', new Date(lastMintTime));
+}
+
+// Sync with blockchain periodically to catch mints from other users
+async function syncWithBlockchain() {
+    if (!connection) return;
+    
+    try {
+        // Check for new mints by fetching latest transaction
+        const signatures = await connection.getSignaturesForAddress(
+            new solanaWeb3.PublicKey(CANDY_MACHINE_ID),
+            { limit: 1 }
+        );
+        
+        if (signatures.length > 0) {
+            const tx = await connection.getTransaction(signatures[0].signature, {
+                maxSupportedTransactionVersion: 0
+            });
+            if (tx && tx.blockTime) {
+                const blockchainMintTime = tx.blockTime * 1000;
+                
+                // If there's a new mint, update our timer
+                if (blockchainMintTime > lastMintTime) {
+                    console.log('New mint detected! Syncing timer...');
+                    lastMintTime = blockchainMintTime;
+                    MINT_PRICE = STARTING_MINT_PRICE;
+                    
+                    // Update displays
+                    const priceElement = document.getElementById('current-price');
+                    if (priceElement) {
+                        priceElement.textContent = `${MINT_PRICE.toFixed(2)} SOL`;
+                    }
+                    updateTotalPrice();
+                    
+                    // Update minted count
+                    const candyMachine = await metaplex.candyMachines().findByAddress({
+                        address: new solanaWeb3.PublicKey(CANDY_MACHINE_ID)
+                    });
+                    mintedCount.textContent = candyMachine.itemsMinted.toString();
+                }
+            }
+        }
+    } catch (err) {
+        console.error('Error syncing with blockchain:', err);
+    }
 }
 
 // Update price every second
 setInterval(updateAuctionPrice, 1000);
+
+// Sync with blockchain every 10 seconds to catch other users' mints
+setInterval(syncWithBlockchain, 10000);
 
 // Initial price update
 updateAuctionPrice();

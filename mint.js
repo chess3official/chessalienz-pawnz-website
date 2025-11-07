@@ -9,14 +9,9 @@ let connection = null;
 let metaplex = null;
 
 // Mint price and limits
-const STARTING_MINT_PRICE = 3; // Starting SOL per NFT (reverse auction)
-const PRICE_DECREASE = 0.03; // SOL decrease per interval
-const PRICE_INTERVAL = 60000; // 60 seconds in milliseconds
-let MINT_PRICE = STARTING_MINT_PRICE; // Current mint price
+const MINT_PRICE = 3; // Fixed price: 3 SOL per NFT
 const MAX_MINT_PER_WALLET = 10; // Maximum mints per wallet
 let walletMintCount = 0; // Track mints for current wallet
-let lastMintTime = null; // Will be fetched from blockchain
-let auctionStartTime = null; // Auction start time from blockchain
 
 // DOM elements
 const connectWalletBtn = document.getElementById('connect-wallet-btn');
@@ -89,11 +84,16 @@ async function connectWallet() {
 // Disconnect wallet
 async function disconnectWallet() {
     if (isPhantomInstalled() && walletConnected) {
-        await window.solana.disconnect();
-        walletConnected = false;
-        walletAddress = null;
-        updateWalletUI();
-        showMessage('Wallet disconnected', 'success');
+        try {
+            await window.solana.disconnect();
+            walletConnected = false;
+            walletAddress = null;
+            metaplex = null;
+            updateWalletUI();
+            showMessage('Wallet disconnected', 'success');
+        } catch (err) {
+            console.error('Disconnect error:', err);
+        }
     }
 }
 
@@ -102,6 +102,7 @@ function updateWalletUI() {
     // Update header wallet status
     const headerWalletStatus = document.getElementById('header-wallet-status');
     const headerWalletText = document.getElementById('header-wallet-text');
+    const headerConnectBtn = document.getElementById('header-connect-btn');
     
     if (walletConnected) {
         walletStatus.classList.remove('wallet-disconnected');
@@ -115,6 +116,8 @@ function updateWalletUI() {
         if (headerWalletStatus) {
             headerWalletStatus.classList.add('connected');
             headerWalletText.textContent = `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`;
+            headerConnectBtn.textContent = 'Disconnect';
+            headerConnectBtn.onclick = disconnectWallet;
         }
     } else {
         walletStatus.classList.remove('wallet-connected');
@@ -128,6 +131,8 @@ function updateWalletUI() {
         if (headerWalletStatus) {
             headerWalletStatus.classList.remove('connected');
             headerWalletText.textContent = 'Not Connected';
+            headerConnectBtn.textContent = 'Connect';
+            headerConnectBtn.onclick = connectWallet;
         }
     }
 }
@@ -256,9 +261,6 @@ async function mintNFT() {
         // Update wallet mint count
         walletMintCount += quantity;
         
-        // Reset auction price on successful mint
-        onMintSuccess();
-        
         // Update minted count from blockchain
         await updateMintedCount();
         
@@ -304,16 +306,17 @@ function showMessage(text, type) {
 // Initialize
 connectWalletBtn.addEventListener('click', connectWallet);
 mintBtn.addEventListener('click', mintNFT);
+const headerConnectBtn = document.getElementById('header-connect-btn');
+if (headerConnectBtn) {
+    headerConnectBtn.addEventListener('click', connectWallet);
+}
 updateTotalPrice();
 
-// Check if wallet is already connected
+// Prevent auto-reconnect on page load
 if (isPhantomInstalled()) {
-    window.solana.on('connect', () => {
-        walletAddress = window.solana.publicKey.toString();
-        walletConnected = true;
-        updateWalletUI();
-    });
-
+    // Disconnect on page load to prevent auto-reconnect
+    window.solana.disconnect().catch(() => {});
+    
     window.solana.on('disconnect', () => {
         walletConnected = false;
         walletAddress = null;
@@ -321,152 +324,4 @@ if (isPhantomInstalled()) {
     });
 }
 
-// Reverse Auction Price Update
-function updateAuctionPrice() {
-    // Don't update if lastMintTime hasn't been initialized from blockchain yet
-    if (!lastMintTime) {
-        return;
-    }
-    
-    const currentTime = Date.now();
-    const timeSinceLastMint = currentTime - lastMintTime;
-    const intervalsElapsed = Math.floor(timeSinceLastMint / PRICE_INTERVAL);
-    
-    // Calculate time until next price drop
-    const timeUntilNextDrop = PRICE_INTERVAL - (timeSinceLastMint % PRICE_INTERVAL);
-    const secondsRemaining = Math.ceil(timeUntilNextDrop / 1000);
-    const minutes = Math.floor(secondsRemaining / 60);
-    const seconds = secondsRemaining % 60;
-    
-    // Update countdown timer
-    const countdownElement = document.getElementById('countdown-timer');
-    if (countdownElement) {
-        countdownElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    }
-    
-    if (intervalsElapsed > 0) {
-        // Decrease price by 0.03 SOL per interval
-        const newPrice = STARTING_MINT_PRICE - (intervalsElapsed * PRICE_DECREASE);
-        // Don't go below a minimum price (e.g., 0.5 SOL)
-        MINT_PRICE = Math.max(0.5, newPrice);
-        
-        // Update price display
-        const priceElement = document.getElementById('current-price');
-        if (priceElement) {
-            priceElement.textContent = `${MINT_PRICE.toFixed(2)} SOL`;
-        }
-        
-        // Update total price
-        updateTotalPrice();
-    }
-}
-
-// Reset price when a mint occurs
-function onMintSuccess() {
-    // Update lastMintTime to current time (will be synced from blockchain on next refresh)
-    lastMintTime = Date.now();
-    MINT_PRICE = STARTING_MINT_PRICE;
-    
-    // Update price display
-    const priceElement = document.getElementById('current-price');
-    if (priceElement) {
-        priceElement.textContent = `${MINT_PRICE.toFixed(2)} SOL`;
-    }
-    
-    // Broadcast the mint event so other users can sync
-    // In production, this would be handled by polling the blockchain
-    console.log('Mint successful at:', new Date(lastMintTime));
-}
-
-// Sync with blockchain periodically to catch mints from other users
-async function syncWithBlockchain() {
-    if (!connection) return;
-    
-    try {
-        // Check for new mints by fetching latest transaction
-        const signatures = await connection.getSignaturesForAddress(
-            new solanaWeb3.PublicKey(CANDY_MACHINE_ID),
-            { limit: 1 }
-        );
-        
-        if (signatures.length > 0) {
-            const tx = await connection.getTransaction(signatures[0].signature, {
-                maxSupportedTransactionVersion: 0
-            });
-            if (tx && tx.blockTime) {
-                const blockchainMintTime = tx.blockTime * 1000;
-                
-                // If there's a new mint, update our timer
-                if (blockchainMintTime > lastMintTime) {
-                    console.log('New mint detected! Syncing timer...');
-                    lastMintTime = blockchainMintTime;
-                    MINT_PRICE = STARTING_MINT_PRICE;
-                    
-                    // Update displays
-                    const priceElement = document.getElementById('current-price');
-                    if (priceElement) {
-                        priceElement.textContent = `${MINT_PRICE.toFixed(2)} SOL`;
-                    }
-                    updateTotalPrice();
-                    
-                    // Update minted count
-                    const candyMachine = await metaplex.candyMachines().findByAddress({
-                        address: new solanaWeb3.PublicKey(CANDY_MACHINE_ID)
-                    });
-                    mintedCount.textContent = candyMachine.itemsMinted.toString();
-                }
-            }
-        }
-    } catch (err) {
-        console.error('Error syncing with blockchain:', err);
-    }
-}
-
-// Initialize blockchain connection on page load (without wallet)
-async function initializeBlockchain() {
-    try {
-        connection = new solanaWeb3.Connection(RPC_ENDPOINT, 'confirmed');
-        console.log('Initializing blockchain connection...');
-        
-        // Fetch last mint time from blockchain
-        const signatures = await connection.getSignaturesForAddress(
-            new solanaWeb3.PublicKey(CANDY_MACHINE_ID),
-            { limit: 1 }
-        );
-        
-        if (signatures.length > 0) {
-            const tx = await connection.getTransaction(signatures[0].signature, {
-                maxSupportedTransactionVersion: 0
-            });
-            if (tx && tx.blockTime) {
-                lastMintTime = tx.blockTime * 1000;
-                console.log('Last mint time from blockchain:', new Date(lastMintTime));
-            } else {
-                // No mints yet, start auction from now
-                lastMintTime = Date.now();
-                console.log('No mints yet, starting auction now');
-            }
-        } else {
-            // No mints yet, start auction from now
-            lastMintTime = Date.now();
-            console.log('No transactions found, starting auction now');
-        }
-        
-        // Now start the price update timer
-        updateAuctionPrice();
-    } catch (err) {
-        console.error('Error initializing blockchain:', err);
-        // Fallback to current time
-        lastMintTime = Date.now();
-        updateAuctionPrice();
-    }
-}
-
-// Initialize on page load
-initializeBlockchain();
-
-// Update price every second
-setInterval(updateAuctionPrice, 1000);
-
-// Sync with blockchain every 10 seconds to catch other users' mints
-setInterval(syncWithBlockchain, 10000);
+// All reverse auction logic removed - fixed price of 3 SOL

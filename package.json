@@ -8,10 +8,7 @@
     "build": "vite build",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "@metaplex-foundation/js": "^0.20.1",
-    "@solana/web3.js": "^1.87.6"
-  },
+  "dependencies": {},
   "devDependencies": {
     "assert": "^2.1.0",
     "buffer": "^6.0.3",

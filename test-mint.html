@@ -345,7 +345,23 @@
     </div>
 
     <script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@metaplex-foundation/js@0.20.1/dist/index.umd.min.js"></script>
+    <script src="https://unpkg.com/@metaplex-foundation/js@0.20.1/dist/index.umd.min.js"></script>
+    
+    <script>
+        // Wait for libraries to load
+        function waitForLibraries() {
+            return new Promise((resolve) => {
+                const checkLibraries = () => {
+                    if (typeof solanaWeb3 !== 'undefined' && typeof Metaplex !== 'undefined') {
+                        resolve();
+                    } else {
+                        setTimeout(checkLibraries, 100);
+                    }
+                };
+                checkLibraries();
+            });
+        }
+    </script>
     
     <script>
         const CANDY_MACHINE_ID = 'FNGdN51cFFsCLMiiiySrWiggQB6ASkaMEc7Ud7p4YGNc';
@@ -390,6 +406,10 @@
         // Connect Wallet
         connectBtn.addEventListener('click', async () => {
             try {
+                // Wait for libraries to load
+                showStatus('Loading libraries...', 'info');
+                await waitForLibraries();
+                
                 // Wait a bit for Phantom to inject
                 await new Promise(resolve => setTimeout(resolve, 100));
                 
@@ -543,6 +563,10 @@
 
         // Auto-connect if previously connected
         window.addEventListener('load', async () => {
+            // Wait for libraries to load
+            await waitForLibraries();
+            console.log('Libraries loaded successfully');
+            
             // Wait for Phantom to inject
             await new Promise(resolve => setTimeout(resolve, 500));
             

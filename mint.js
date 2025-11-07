@@ -198,6 +198,18 @@ function updateAuctionPrice() {
     const timeSinceLastMint = currentTime - lastMintTime;
     const intervalsElapsed = Math.floor(timeSinceLastMint / PRICE_INTERVAL);
     
+    // Calculate time until next price drop
+    const timeUntilNextDrop = PRICE_INTERVAL - (timeSinceLastMint % PRICE_INTERVAL);
+    const secondsRemaining = Math.ceil(timeUntilNextDrop / 1000);
+    const minutes = Math.floor(secondsRemaining / 60);
+    const seconds = secondsRemaining % 60;
+    
+    // Update countdown timer
+    const countdownElement = document.getElementById('countdown-timer');
+    if (countdownElement) {
+        countdownElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+    
     if (intervalsElapsed > 0) {
         // Decrease price by 0.03 SOL per interval
         const newPrice = STARTING_MINT_PRICE - (intervalsElapsed * PRICE_DECREASE);

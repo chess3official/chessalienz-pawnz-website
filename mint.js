@@ -48,29 +48,29 @@ async function connectWallet() {
         connection = new solanaWeb3.Connection(RPC_ENDPOINT, 'confirmed');
         console.log('Solana connection initialized:', RPC_ENDPOINT);
         
-        // Check if Metaplex is loaded
-        console.log('Checking Metaplex...', typeof Metaplex, typeof mplCandyMachine);
-        if (typeof Metaplex === 'undefined') {
-            console.error('Metaplex library not loaded');
-            showMessage('Blockchain libraries not ready. Refresh the page and try again.', 'error');
-            walletConnected = false;
-            return;
+        // Try to initialize Metaplex if available (optional for now)
+        if (typeof Metaplex !== 'undefined') {
+            try {
+                console.log('Metaplex found, initializing...');
+                const walletAdapter = {
+                    publicKey: window.solana.publicKey,
+                    signTransaction: async (tx) => await window.solana.signTransaction(tx),
+                    signAllTransactions: async (txs) => await window.solana.signAllTransactions(txs),
+                };
+                
+                metaplex = Metaplex.make(connection).use(Metaplex.walletAdapterIdentity(walletAdapter));
+                console.log('Metaplex initialized successfully');
+                
+                // Fetch current minted count from Candy Machine
+                await updateMintedCount();
+            } catch (metaplexErr) {
+                console.warn('Metaplex initialization failed, using basic mode:', metaplexErr);
+                metaplex = null;
+            }
+        } else {
+            console.warn('Metaplex not loaded, using basic wallet connection');
+            metaplex = null;
         }
-        
-        // Initialize Metaplex with wallet adapter
-        const walletAdapter = {
-            publicKey: window.solana.publicKey,
-            signTransaction: async (tx) => await window.solana.signTransaction(tx),
-            signAllTransactions: async (txs) => await window.solana.signAllTransactions(txs),
-        };
-        
-        console.log('Creating Metaplex instance...');
-        metaplex = Metaplex.make(connection).use(Metaplex.walletAdapterIdentity(walletAdapter));
-        console.log('Metaplex initialized successfully');
-        
-        // Fetch current minted count from Candy Machine
-        console.log('Fetching minted count...');
-        await updateMintedCount();
         
         updateWalletUI();
         showMessage('Wallet connected successfully!', 'success');
@@ -162,8 +162,13 @@ increaseBtn.addEventListener('click', () => {
     }
 });
 
-// Fetch current minted count and auction timing from Candy Machine
+// Fetch current minted count from Candy Machine
 async function updateMintedCount() {
+    if (!metaplex) {
+        console.log('Metaplex not available, skipping minted count update');
+        return;
+    }
+    
     try {
         const candyMachine = await metaplex.candyMachines().findByAddress({
             address: new solanaWeb3.PublicKey(CANDY_MACHINE_ID)
@@ -171,47 +176,9 @@ async function updateMintedCount() {
         
         const minted = candyMachine.itemsMinted.toString();
         mintedCount.textContent = minted;
-        
-        // Get the Candy Machine account to fetch timestamps
-        const candyMachineAccount = await connection.getAccountInfo(
-            new solanaWeb3.PublicKey(CANDY_MACHINE_ID)
-        );
-        
-        // If no mints yet, use a fixed start time (deployment time)
-        // For production, you'd store this in your config or on-chain
-        if (!auctionStartTime) {
-            // Use a fixed auction start time - update this to your actual launch time
-            // For now, using Candy Machine deployment time as reference
-            auctionStartTime = Date.now(); // This will be synced on first load
-            
-            // Try to get last mint timestamp from recent transactions
-            const signatures = await connection.getSignaturesForAddress(
-                new solanaWeb3.PublicKey(CANDY_MACHINE_ID),
-                { limit: 1 }
-            );
-            
-            if (signatures.length > 0) {
-                const tx = await connection.getTransaction(signatures[0].signature, {
-                    maxSupportedTransactionVersion: 0
-                });
-                if (tx && tx.blockTime) {
-                    lastMintTime = tx.blockTime * 1000; // Convert to milliseconds
-                    console.log('Last mint time from blockchain:', new Date(lastMintTime));
-                }
-            }
-            
-            // If no mints yet, set lastMintTime to auction start
-            if (!lastMintTime) {
-                lastMintTime = auctionStartTime;
-            }
-        }
-        
+        console.log('Minted count updated:', minted);
     } catch (err) {
         console.error('Error fetching minted count:', err);
-        // Fallback to current time if blockchain fetch fails
-        if (!lastMintTime) {
-            lastMintTime = Date.now();
-        }
     }
 }
 
@@ -237,11 +204,24 @@ async function mintNFT() {
     try {
         // Check if metaplex is initialized
         if (!metaplex) {
-            showMessage('Please reconnect your wallet and try again.', 'error');
+            showMessage('⚠️ Metaplex SDK not loaded. Using simulation mode for testing.', 'error');
+            
+            // Simulate minting for testing
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
+            showMessage('✅ Simulated mint successful! (Real minting requires Metaplex SDK)', 'success');
+            
+            // Update wallet mint count
+            walletMintCount += quantity;
+            
+            // Update simulated minted count
+            const currentMinted = parseInt(mintedCount.textContent);
+            mintedCount.textContent = currentMinted + quantity;
+            
             return;
         }
         
-        // Mint NFTs from Candy Machine
+        // Real minting with Metaplex
         for (let i = 0; i < quantity; i++) {
             showMessage(`Minting NFT ${i + 1} of ${quantity}...`, 'info');
             

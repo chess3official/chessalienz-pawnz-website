@@ -323,9 +323,9 @@ if (isPhantomInstalled()) {
 
 // Reverse Auction Price Update
 function updateAuctionPrice() {
-    // Initialize lastMintTime if not set
+    // Don't update if lastMintTime hasn't been initialized from blockchain yet
     if (!lastMintTime) {
-        lastMintTime = Date.now();
+        return;
     }
     
     const currentTime = Date.now();
@@ -422,11 +422,51 @@ async function syncWithBlockchain() {
     }
 }
 
+// Initialize blockchain connection on page load (without wallet)
+async function initializeBlockchain() {
+    try {
+        connection = new solanaWeb3.Connection(RPC_ENDPOINT, 'confirmed');
+        console.log('Initializing blockchain connection...');
+        
+        // Fetch last mint time from blockchain
+        const signatures = await connection.getSignaturesForAddress(
+            new solanaWeb3.PublicKey(CANDY_MACHINE_ID),
+            { limit: 1 }
+        );
+        
+        if (signatures.length > 0) {
+            const tx = await connection.getTransaction(signatures[0].signature, {
+                maxSupportedTransactionVersion: 0
+            });
+            if (tx && tx.blockTime) {
+                lastMintTime = tx.blockTime * 1000;
+                console.log('Last mint time from blockchain:', new Date(lastMintTime));
+            } else {
+                // No mints yet, start auction from now
+                lastMintTime = Date.now();
+                console.log('No mints yet, starting auction now');
+            }
+        } else {
+            // No mints yet, start auction from now
+            lastMintTime = Date.now();
+            console.log('No transactions found, starting auction now');
+        }
+        
+        // Now start the price update timer
+        updateAuctionPrice();
+    } catch (err) {
+        console.error('Error initializing blockchain:', err);
+        // Fallback to current time
+        lastMintTime = Date.now();
+        updateAuctionPrice();
+    }
+}
+
+// Initialize on page load
+initializeBlockchain();
+
 // Update price every second
 setInterval(updateAuctionPrice, 1000);
 
 // Sync with blockchain every 10 seconds to catch other users' mints
 setInterval(syncWithBlockchain, 10000);
-
-// Initial price update
-updateAuctionPrice();

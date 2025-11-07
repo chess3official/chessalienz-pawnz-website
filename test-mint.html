@@ -344,16 +344,28 @@
         <div id="status" class="status"></div>
     </div>
 
-    <script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
-    <script src="https://unpkg.com/@metaplex-foundation/js@0.20.1/dist/index.umd.min.js"></script>
+    <script src="https://unpkg.com/@solana/web3.js@1.95.0/lib/index.iife.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@metaplex-foundation/js@0.20.1/dist/index.umd.min.js"></script>
     
     <script>
-        // Wait for libraries to load
+        // Wait for libraries to load with timeout
         function waitForLibraries() {
-            return new Promise((resolve) => {
+            return new Promise((resolve, reject) => {
+                let attempts = 0;
+                const maxAttempts = 50; // 5 seconds max
+                
                 const checkLibraries = () => {
+                    attempts++;
+                    
                     if (typeof solanaWeb3 !== 'undefined' && typeof Metaplex !== 'undefined') {
+                        console.log('Libraries loaded successfully');
                         resolve();
+                    } else if (attempts >= maxAttempts) {
+                        const missing = [];
+                        if (typeof solanaWeb3 === 'undefined') missing.push('Solana Web3');
+                        if (typeof Metaplex === 'undefined') missing.push('Metaplex');
+                        console.error('Failed to load:', missing.join(', '));
+                        reject(new Error('Libraries failed to load: ' + missing.join(', ')));
                     } else {
                         setTimeout(checkLibraries, 100);
                     }
@@ -408,7 +420,12 @@
             try {
                 // Wait for libraries to load
                 showStatus('Loading libraries...', 'info');
-                await waitForLibraries();
+                try {
+                    await waitForLibraries();
+                } catch (error) {
+                    showStatus('Failed to load blockchain libraries. Please refresh the page.', 'error');
+                    return;
+                }
                 
                 // Wait a bit for Phantom to inject
                 await new Promise(resolve => setTimeout(resolve, 100));

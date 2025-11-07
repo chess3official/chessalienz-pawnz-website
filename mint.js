@@ -1,6 +1,12 @@
+// Candy Machine Configuration
+const CANDY_MACHINE_ID = 'FNGdN51cFFsCLMiiiySrWiggQB6ASkaMEc7Ud7p4YGNc';
+const RPC_ENDPOINT = 'https://api.devnet.solana.com';
+
 // Wallet connection state
 let walletConnected = false;
 let walletAddress = null;
+let connection = null;
+let metaplex = null;
 
 // Mint price and limits
 const STARTING_MINT_PRICE = 3; // Starting SOL per NFT (reverse auction)
@@ -41,6 +47,21 @@ async function connectWallet() {
         const resp = await window.solana.connect();
         walletAddress = resp.publicKey.toString();
         walletConnected = true;
+        
+        // Initialize Solana connection and Metaplex
+        connection = new solanaWeb3.Connection(RPC_ENDPOINT, 'confirmed');
+        
+        // Initialize Metaplex with wallet adapter
+        const walletAdapter = {
+            publicKey: window.solana.publicKey,
+            signTransaction: async (tx) => await window.solana.signTransaction(tx),
+            signAllTransactions: async (txs) => await window.solana.signAllTransactions(txs),
+        };
+        
+        metaplex = Metaplex.make(connection).use(walletAdapterIdentity(walletAdapter));
+        
+        // Fetch current minted count from Candy Machine
+        await updateMintedCount();
         
         updateWalletUI();
         showMessage('Wallet connected successfully!', 'success');
@@ -105,6 +126,20 @@ increaseBtn.addEventListener('click', () => {
     }
 });
 
+// Fetch current minted count from Candy Machine
+async function updateMintedCount() {
+    try {
+        const candyMachine = await metaplex.candyMachines().findByAddress({
+            address: new solanaWeb3.PublicKey(CANDY_MACHINE_ID)
+        });
+        
+        const minted = candyMachine.itemsMinted.toString();
+        mintedCount.textContent = minted;
+    } catch (err) {
+        console.error('Error fetching minted count:', err);
+    }
+}
+
 // Mint NFT
 async function mintNFT() {
     if (!walletConnected) {
@@ -125,11 +160,17 @@ async function mintNFT() {
     mintBtn.textContent = 'MINTING...';
 
     try {
-        // TODO: Implement actual minting logic with Metaplex/Candy Machine
-        // This is a placeholder for the minting process
-        
-        // Simulate minting delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // Mint NFTs from Candy Machine
+        for (let i = 0; i < quantity; i++) {
+            showMessage(`Minting NFT ${i + 1} of ${quantity}...`, 'info');
+            
+            const { nft } = await metaplex.candyMachines().mint({
+                candyMachine: new solanaWeb3.PublicKey(CANDY_MACHINE_ID),
+                collectionUpdateAuthority: new solanaWeb3.PublicKey('D2nUJVgRMHgeAH8Zw3gCMjhgRZin9xmjSuStSZjtqkC2')
+            });
+            
+            console.log('Minted NFT:', nft.address.toString());
+        }
         
         // Update wallet mint count
         walletMintCount += quantity;
@@ -137,11 +178,10 @@ async function mintNFT() {
         // Reset auction price on successful mint
         onMintSuccess();
         
-        showMessage(`Successfully minted ${quantity} Chessalienz: Pawnz NFT${quantity > 1 ? 's' : ''}! (${walletMintCount}/${MAX_MINT_PER_WALLET} used)`, 'success');
+        // Update minted count from blockchain
+        await updateMintedCount();
         
-        // Update minted count (this should come from your smart contract)
-        const currentMinted = parseInt(mintedCount.textContent);
-        mintedCount.textContent = currentMinted + quantity;
+        showMessage(`Successfully minted ${quantity} Chessalienz: Pawnz NFT${quantity > 1 ? 's' : ''}! Check your wallet! (${walletMintCount}/${MAX_MINT_PER_WALLET} used)`, 'success');
         
         // Update max quantity if approaching limit
         const remaining = MAX_MINT_PER_WALLET - walletMintCount;
@@ -155,7 +195,15 @@ async function mintNFT() {
         
     } catch (err) {
         console.error('Minting error:', err);
-        showMessage('Minting failed. Please try again.', 'error');
+        let errorMessage = 'Minting failed. Please try again.';
+        
+        if (err.message.includes('insufficient funds')) {
+            errorMessage = 'Insufficient SOL balance. Please add more SOL to your wallet.';
+        } else if (err.message.includes('User rejected')) {
+            errorMessage = 'Transaction cancelled by user.';
+        }
+        
+        showMessage(errorMessage, 'error');
     } finally {
         mintBtn.disabled = false;
         mintBtn.textContent = 'MINT NOW';

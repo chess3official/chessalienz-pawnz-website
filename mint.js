@@ -51,11 +51,13 @@ async function connectWallet() {
         
         // Initialize Solana connection
         connection = new solanaWeb3.Connection(RPC_ENDPOINT, 'confirmed');
+        console.log('Solana connection initialized:', RPC_ENDPOINT);
         
         // Check if Metaplex is loaded
+        console.log('Checking Metaplex...', typeof Metaplex, typeof mplCandyMachine);
         if (typeof Metaplex === 'undefined') {
             console.error('Metaplex library not loaded');
-            showMessage('Loading blockchain libraries... Please wait and try again.', 'error');
+            showMessage('Blockchain libraries not ready. Refresh the page and try again.', 'error');
             walletConnected = false;
             return;
         }
@@ -67,16 +69,20 @@ async function connectWallet() {
             signAllTransactions: async (txs) => await window.solana.signAllTransactions(txs),
         };
         
+        console.log('Creating Metaplex instance...');
         metaplex = Metaplex.make(connection).use(Metaplex.walletAdapterIdentity(walletAdapter));
+        console.log('Metaplex initialized successfully');
         
         // Fetch current minted count from Candy Machine
+        console.log('Fetching minted count...');
         await updateMintedCount();
         
         updateWalletUI();
         showMessage('Wallet connected successfully!', 'success');
     } catch (err) {
         console.error('Wallet connection error:', err);
-        showMessage(`Failed to connect wallet: ${err.message}`, 'error');
+        console.error('Error stack:', err.stack);
+        showMessage(`Connection failed: ${err.message}`, 'error');
     }
 }
 
@@ -224,16 +230,27 @@ async function mintNFT() {
     mintBtn.textContent = 'MINTING...';
 
     try {
+        // Check if metaplex is initialized
+        if (!metaplex) {
+            showMessage('Please reconnect your wallet and try again.', 'error');
+            return;
+        }
+        
         // Mint NFTs from Candy Machine
         for (let i = 0; i < quantity; i++) {
             showMessage(`Minting NFT ${i + 1} of ${quantity}...`, 'info');
             
-            const { nft } = await metaplex.candyMachines().mint({
-                candyMachine: new solanaWeb3.PublicKey(CANDY_MACHINE_ID),
-                collectionUpdateAuthority: new solanaWeb3.PublicKey('D2nUJVgRMHgeAH8Zw3gCMjhgRZin9xmjSuStSZjtqkC2')
-            });
-            
-            console.log('Minted NFT:', nft.address.toString());
+            try {
+                const { nft } = await metaplex.candyMachines().mint({
+                    candyMachine: new solanaWeb3.PublicKey(CANDY_MACHINE_ID),
+                    collectionUpdateAuthority: new solanaWeb3.PublicKey('D2nUJVgRMHgeAH8Zw3gCMjhgRZin9xmjSuStSZjtqkC2')
+                });
+                
+                console.log('Minted NFT:', nft.address.toString());
+            } catch (mintError) {
+                console.error(`Error minting NFT ${i + 1}:`, mintError);
+                throw mintError; // Re-throw to be caught by outer catch
+            }
         }
         
         // Update wallet mint count
@@ -306,6 +323,11 @@ if (isPhantomInstalled()) {
 
 // Reverse Auction Price Update
 function updateAuctionPrice() {
+    // Initialize lastMintTime if not set
+    if (!lastMintTime) {
+        lastMintTime = Date.now();
+    }
+    
     const currentTime = Date.now();
     const timeSinceLastMint = currentTime - lastMintTime;
     const intervalsElapsed = Math.floor(timeSinceLastMint / PRICE_INTERVAL);

@@ -1,4 +1,6 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false
+  "buildCommand": "npm install && npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "cleanUrls": true
 }

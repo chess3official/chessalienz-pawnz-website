@@ -49,8 +49,16 @@ async function connectWallet() {
         walletAddress = resp.publicKey.toString();
         walletConnected = true;
         
-        // Initialize Solana connection and Metaplex
+        // Initialize Solana connection
         connection = new solanaWeb3.Connection(RPC_ENDPOINT, 'confirmed');
+        
+        // Check if Metaplex is loaded
+        if (typeof Metaplex === 'undefined') {
+            console.error('Metaplex library not loaded');
+            showMessage('Loading blockchain libraries... Please wait and try again.', 'error');
+            walletConnected = false;
+            return;
+        }
         
         // Initialize Metaplex with wallet adapter
         const walletAdapter = {
@@ -59,7 +67,7 @@ async function connectWallet() {
             signAllTransactions: async (txs) => await window.solana.signAllTransactions(txs),
         };
         
-        metaplex = Metaplex.make(connection).use(walletAdapterIdentity(walletAdapter));
+        metaplex = Metaplex.make(connection).use(Metaplex.walletAdapterIdentity(walletAdapter));
         
         // Fetch current minted count from Candy Machine
         await updateMintedCount();
@@ -68,7 +76,7 @@ async function connectWallet() {
         showMessage('Wallet connected successfully!', 'success');
     } catch (err) {
         console.error('Wallet connection error:', err);
-        showMessage('Failed to connect wallet', 'error');
+        showMessage(`Failed to connect wallet: ${err.message}`, 'error');
     }
 }
 
@@ -85,6 +93,10 @@ async function disconnectWallet() {
 
 // Update wallet UI
 function updateWalletUI() {
+    // Update header wallet status
+    const headerWalletStatus = document.getElementById('header-wallet-status');
+    const headerWalletText = document.getElementById('header-wallet-text');
+    
     if (walletConnected) {
         walletStatus.classList.remove('wallet-disconnected');
         walletStatus.classList.add('wallet-connected');
@@ -92,6 +104,12 @@ function updateWalletUI() {
         connectWalletBtn.textContent = 'Disconnect';
         connectWalletBtn.onclick = disconnectWallet;
         mintControls.style.display = 'block';
+        
+        // Update header indicator
+        if (headerWalletStatus) {
+            headerWalletStatus.classList.add('connected');
+            headerWalletText.textContent = `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`;
+        }
     } else {
         walletStatus.classList.remove('wallet-connected');
         walletStatus.classList.add('wallet-disconnected');
@@ -99,6 +117,12 @@ function updateWalletUI() {
         connectWalletBtn.textContent = 'Connect Wallet';
         connectWalletBtn.onclick = connectWallet;
         mintControls.style.display = 'none';
+        
+        // Update header indicator
+        if (headerWalletStatus) {
+            headerWalletStatus.classList.remove('connected');
+            headerWalletText.textContent = 'Not Connected';
+        }
     }
 }
 

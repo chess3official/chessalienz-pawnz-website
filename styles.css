@@ -176,6 +176,45 @@ body::after {
     box-shadow: 0 0 20px rgba(153, 69, 255, 0.5);
 }
 
+/* Header Wallet Status */
+.header-wallet-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(26, 26, 26, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.wallet-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #ff4444;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.header-wallet-status.connected .wallet-indicator {
+    background: var(--secondary-color);
+    box-shadow: 0 0 8px var(--secondary-color);
+}
+
+.header-wallet-status.connected #header-wallet-text {
+    color: var(--secondary-color);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
 .mobile-menu-toggle {
     display: none;
     flex-direction: column;

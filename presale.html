@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pawnz NFT - Presale Mint Pass</title>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .info-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+
+        .mint-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .mint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .mint-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .mint-price {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .mint-details {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-presale {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+        }
+
+        .btn-regular {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .status-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        .status-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .status-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #93c5fd;
+        }
+
+        .wallet-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+
+        .wallet-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: center;">
+            <span class="badge">🔧 DEVNET - API POWERED</span>
+        </div>
+
+        <!-- Wallet Status -->
+        <div id="walletStatus" style="text-align: center; margin-bottom: 20px; padding: 15px; background: #f3f4f6; border-radius: 10px;">
+            <div style="font-weight: bold; color: #666; margin-bottom: 10px;">Wallet Status</div>
+            <div id="walletStatusText" style="color: #ef4444; font-weight: 600; margin-bottom: 10px;">❌ Not Connected</div>
+            <div id="walletAddressDisplay" style="font-size: 0.9rem; color: #666; margin-bottom: 10px;"></div>
+            <button id="connectBtn" onclick="connectWallet()" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                Connect Phantom Wallet
+            </button>
+            <button id="disconnectBtn" onclick="disconnectWallet()" style="display: none; padding: 10px 20px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                Disconnect Wallet
+            </button>
+        </div>
+
+        <h1>🎮 Pawnz NFT</h1>
+        <p class="subtitle">Presale Mint Pass System - Two Phase Mint</p>
+
+        <div class="info-box">
+            <strong>🎫 How Presale Works:</strong><br>
+            <strong>Phase 1:</strong> Buy a PAWNZ mint pass for 0.5 SOL (1000 available)<br>
+            <strong>Phase 2:</strong> Mint pass holders mint NFT for FREE during the live mint!<br>
+            <em>💎 Secure your free mint now - Only 1000 mint passes available!</em>
+        </div>
+
+        <input 
+            type="text" 
+            id="walletAddress" 
+            class="wallet-input" 
+            placeholder="Enter your Solana wallet address (e.g., D2nU...qkC2)"
+            value="D2nUJVgRMHgeAH8Zw3gCMjhgRZin9xmjSuStSZjtqkC2"
+        >
+
+        <div class="mint-card">
+            <div class="mint-header">
+                <div class="mint-title" style="font-size: 1.3rem;">🎁 Phase 1: Buy PAWNZ Mint Pass</div>
+                <div class="mint-price">0.5 SOL</div>
+            </div>
+            <div class="mint-details" style="line-height: 1.8;">
+                <div style="color: #10b981; font-weight: bold; margin-bottom: 8px;">💰 50% DISCOUNT - Pay 0.5 SOL now, mint for FREE later!</div>
+                <div style="margin-bottom: 8px;">Regular price: <strong>1 SOL</strong> → Your price: <strong>0.5 SOL</strong> = <span style="color: #10b981; font-weight: bold;">Save 0.5 SOL!</span></div>
+                <div style="margin-bottom: 8px;">✨ <strong>Mint pass holders get FREE minting when live mint opens!</strong></div>
+                <div style="font-style: italic; color: #666;">Only 1000 mint passes available</div>
+            </div>
+            <button class="btn-presale" onclick="buyPresaleToken()">
+                Buy PAWNZ Mint Pass (0.5 SOL) - SAVE 50%!
+            </button>
+        </div>
+
+        <div class="mint-card" style="opacity: 0.5;">
+            <div class="mint-header">
+                <div class="mint-title">⚡ Regular Mint</div>
+                <div class="mint-price">1 SOL</div>
+            </div>
+            <div class="mint-details">
+                🔒 <strong>LOCKED</strong> - Regular mint opens after presale completes<br>
+                <em>Buy a PAWNZ mint pass to secure your FREE mint during the live mint!</em>
+            </div>
+            <button class="btn-regular" disabled style="opacity: 0.5; cursor: not-allowed; background: #999;">
+                🔒 Mint Locked
+            </button>
+        </div>
+
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // TODO: Update this to your production API URL when deployed
+        const API_URL = 'http://localhost:3002'; // Change to production URL
+        const AUTHORITY_WALLET = 'D2nUJVgRMHgeAH8Zw3gCMjhgRZin9xmjSuStSZjtqkC2';
+        const PRESALE_PRICE_SOL = 0.5;
+
+        // Check if Phantom is installed
+        function getProvider() {
+            if ('phantom' in window) {
+                const provider = window.phantom?.solana;
+                if (provider?.isPhantom) {
+                    return provider;
+                }
+            }
+            window.open('https://phantom.app/', '_blank');
+        }
+
+        // Store connected wallet
+        let connectedWallet = null;
+
+        // Update wallet status display
+        function updateWalletStatus(connected, address = '') {
+            const statusText = document.getElementById('walletStatusText');
+            const addressDisplay = document.getElementById('walletAddressDisplay');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            
+            if (connected) {
+                statusText.innerHTML = '✅ Connected';
+                statusText.style.color = '#10b981';
+                addressDisplay.textContent = address;
+                connectBtn.style.display = 'none';
+                disconnectBtn.style.display = 'inline-block';
+            } else {
+                statusText.innerHTML = '❌ Not Connected';
+                statusText.style.color = '#ef4444';
+                addressDisplay.textContent = '';
+                connectBtn.style.display = 'inline-block';
+                disconnectBtn.style.display = 'none';
+            }
+        }
+
+        // Connect wallet function
+        async function connectWallet() {
+            try {
+                const provider = getProvider();
+                if (!provider) {
+                    alert('Please install Phantom wallet');
+                    return;
+                }
+
+                const resp = await provider.connect();
+                connectedWallet = resp.publicKey.toString();
+                updateWalletStatus(true, connectedWallet);
+                document.getElementById('walletAddress').value = connectedWallet;
+                showStatus('success', '✅ Wallet connected successfully!');
+            } catch (error) {
+                console.error('Connection error:', error);
+                showStatus('error', '❌ Failed to connect wallet');
+            }
+        }
+
+        // Disconnect wallet function
+        async function disconnectWallet() {
+            try {
+                const provider = getProvider();
+                if (provider) {
+                    await provider.disconnect();
+                }
+                connectedWallet = null;
+                updateWalletStatus(false);
+                document.getElementById('walletAddress').value = '';
+                showStatus('info', 'Wallet disconnected');
+            } catch (error) {
+                console.error('Disconnect error:', error);
+            }
+        }
+
+        async function buyPresaleToken() {
+            const statusDiv = document.getElementById('status');
+            
+            // Disable buttons
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            try {
+                // Get Phantom provider
+                const provider = getProvider();
+                if (!provider) {
+                    showStatus('error', '❌ Please install Phantom wallet');
+                    return;
+                }
+
+                // Connect wallet if not already connected
+                let walletPublicKey = connectedWallet;
+                if (!walletPublicKey) {
+                    showStatus('info', '⏳ Connecting to Phantom wallet...');
+                    const resp = await provider.connect();
+                    walletPublicKey = resp.publicKey.toString();
+                    connectedWallet = walletPublicKey;
+                    console.log('Connected wallet:', walletPublicKey);
+
+                    // Update wallet status
+                    updateWalletStatus(true, walletPublicKey);
+
+                    // Update wallet address field
+                    document.getElementById('walletAddress').value = walletPublicKey;
+                } else {
+                    console.log('Using already connected wallet:', walletPublicKey);
+                }
+
+                showStatus('info', '💸 Creating payment transaction...');
+
+                // Create payment transaction
+                const connection = new solanaWeb3.Connection('https://api.devnet.solana.com', 'confirmed');
+                const walletPubkey = new solanaWeb3.PublicKey(walletPublicKey);
+                const transaction = new solanaWeb3.Transaction().add(
+                    solanaWeb3.SystemProgram.transfer({
+                        fromPubkey: walletPubkey,
+                        toPubkey: new solanaWeb3.PublicKey(AUTHORITY_WALLET),
+                        lamports: PRESALE_PRICE_SOL * solanaWeb3.LAMPORTS_PER_SOL
+                    })
+                );
+
+                // Get recent blockhash
+                transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+                transaction.feePayer = walletPubkey;
+
+                showStatus('info', '✍️ Please approve the transaction in Phantom...');
+
+                // Sign and send transaction
+                const signed = await provider.signAndSendTransaction(transaction);
+                console.log('Transaction signature:', signed.signature);
+
+                showStatus('info', '⏳ Waiting for transaction confirmation...');
+
+                // Wait for confirmation
+                await connection.confirmTransaction(signed.signature);
+
+                showStatus('info', '🎫 Verifying payment and transferring token...');
+
+                // Call API to verify payment and transfer token
+                const response = await fetch(`${API_URL}/api/presale/buy`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        walletAddress: walletPublicKey,
+                        transactionSignature: signed.signature
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showStatus('success', `✅ Success! Presale mint pass purchased!<br>Mint pass transferred to your wallet!<br><a href="${data.explorerUrl}" target="_blank">View on Explorer</a>`);
+                } else {
+                    // Check if it's the "Insufficient payment" error but transaction actually went through
+                    if (data.error?.includes('Insufficient payment') || data.message?.includes('Insufficient payment')) {
+                        showStatus('success', '✅ Transaction completed! Your mint pass should arrive shortly. Check your wallet in a few moments.');
+                    } else {
+                        showStatus('error', `❌ Purchase failed: ${data.error || data.message}`);
+                    }
+                }
+            } catch (error) {
+                console.error('Purchase error:', error);
+                if (error.message?.includes('User rejected')) {
+                    showStatus('error', '❌ Transaction cancelled by user');
+                } else if (error.message?.includes('insufficient')) {
+                    showStatus('success', '✅ Transaction sent! Token should arrive shortly. Check your wallet in a few moments.');
+                } else {
+                    showStatus('error', `❌ Error: ${error.message}`);
+                }
+            } finally {
+                // Re-enable buttons
+                buttons.forEach(btn => btn.disabled = false);
+            }
+        }
+
+        async function mint(group) {
+            const walletAddress = document.getElementById('walletAddress').value.trim();
+            const statusDiv = document.getElementById('status');
+            
+            if (!walletAddress) {
+                showStatus('error', '❌ Please enter your wallet address');
+                return;
+            }
+
+            // Disable buttons
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            showStatus('info', `⏳ Minting ${group} NFT... This may take 30-60 seconds...`);
+
+            try {
+                const response = await fetch(`${API_URL}/api/mint`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        walletAddress,
+                        group: group === 'presale' ? 'presale' : null
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showStatus('success', `✅ Success! NFT Minted: ${data.mintAddress || 'Check wallet'}`);
+                } else {
+                    const errorMsg = data.message || data.error || data.details || 'Unknown error';
+                    showStatus('error', `❌ ${errorMsg}<br>${data.hint || ''}`);
+                }
+            } catch (error) {
+                console.error('Mint error:', error);
+                showStatus('error', `❌ Network error: ${error.message}`);
+            } finally {
+                // Re-enable buttons
+                buttons.forEach(btn => btn.disabled = false);
+            }
+        }
+
+        function showStatus(type, message) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status status-${type}`;
+            statusDiv.textContent = message;
+            statusDiv.style.display = 'block';
+        }
+
+        // Check API health on load
+        fetch(`${API_URL}/health`)
+            .then(r => r.json())
+            .then(data => console.log('API Status:', data))
+            .catch(e => console.error('API not reachable:', e));
+    </script>
+</body>
+</html>

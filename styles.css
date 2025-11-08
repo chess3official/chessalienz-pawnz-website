@@ -1066,6 +1066,7 @@ body::after {
         right: 0;
         background: rgba(10, 10, 10, 0.98);
         backdrop-filter: blur(10px);
+        display: flex !important;
         flex-direction: column;
         padding: 2rem;
         gap: 1.5rem;
@@ -1074,6 +1075,7 @@ body::after {
         opacity: 0;
         transition: all 0.3s ease;
         pointer-events: none;
+        z-index: 999;
     }
 
     .nav-menu.active {

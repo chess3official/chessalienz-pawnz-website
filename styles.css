@@ -321,11 +321,19 @@ body::after {
 }
 
 .side-menu .whitepaper-link {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
     font-weight: 600;
+}
+
+.side-menu .whitepaper-link:hover,
+.side-menu .whitepaper-link.active {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
 }
 
 .side-menu .mint-link {

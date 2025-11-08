@@ -35,14 +35,14 @@
     <header class="header">
         <div class="container">
             <div class="logo">
-                <h1>CHESSALIENZ</h1>
+                <a href="#hero"><h1>CHESSALIENZ</h1></a>
             </div>
             <nav class="nav-menu">
                 <a href="#directive">Directive</a>
                 <a href="#roadmap">Utility Roadmap</a>
                 <a href="#about">About CHESS3</a>
                 <a href="#community">Community</a>
-                <a href="https://chess3-1.gitbook.io/chess3/" target="_blank" rel="noopener noreferrer">Whitepaper</a>
+                <a href="https://chess3-1.gitbook.io/chess3/" target="_blank" rel="noopener noreferrer" class="whitepaper-link">Whitepaper</a>
                 <a href="#presale" class="mint-btn">PRE-SALE</a>
             </nav>
             <div class="mobile-menu-toggle">
@@ -61,12 +61,12 @@
             <a href="#about">About CHESS3</a>
             <a href="#presale">Pre-Sale</a>
             <a href="#community">Community</a>
-            <a href="https://chess3-1.gitbook.io/chess3/" target="_blank" rel="noopener noreferrer">Whitepaper</a>
+            <a href="https://chess3-1.gitbook.io/chess3/" target="_blank" rel="noopener noreferrer" class="whitepaper-link">Whitepaper</a>
         </nav>
     </aside>
 
     <!-- Hero Section -->
-    <section class="hero">
+    <section class="hero" id="hero">
         <div class="container">
             <div class="hero-content">
                 <div class="ufo-container">
@@ -338,6 +338,40 @@
                     }
                 });
             });
+
+            // Active section highlighting for side menu
+            const sections = document.querySelectorAll('section[id]');
+            const sideNavLinks = document.querySelectorAll('#side-nav a[href^="#"]');
+
+            function highlightActiveSection() {
+                const scrollPosition = window.pageYOffset + 200;
+                const windowHeight = window.innerHeight;
+                const documentHeight = document.documentElement.scrollHeight;
+                const isAtBottom = (window.pageYOffset + windowHeight) >= documentHeight - 50;
+                
+                if (isAtBottom) {
+                    sideNavLinks.forEach(link => link.classList.remove('active'));
+                    const lastSection = sections[sections.length - 1];
+                    const lastSectionId = lastSection.getAttribute('id');
+                    const lastLink = document.querySelector(`#side-nav a[href="#${lastSectionId}"]`);
+                    if (lastLink) lastLink.classList.add('active');
+                } else {
+                    sections.forEach(section => {
+                        const sectionTop = section.offsetTop;
+                        const sectionHeight = section.offsetHeight;
+                        const sectionId = section.getAttribute('id');
+                        
+                        if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                            sideNavLinks.forEach(link => link.classList.remove('active'));
+                            const activeLink = document.querySelector(`#side-nav a[href="#${sectionId}"]`);
+                            if (activeLink) activeLink.classList.add('active');
+                        }
+                    });
+                }
+            }
+
+            window.addEventListener('scroll', highlightActiveSection);
+            highlightActiveSection();
         });
     </script>
     <script src="script.js"></script>

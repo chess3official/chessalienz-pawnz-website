@@ -164,6 +164,14 @@ body::after {
     color: var(--text-primary);
 }
 
+.whitepaper-link {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
+}
+
 .mint-btn {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
     color: var(--text-primary) !important;
@@ -310,6 +318,14 @@ body::after {
     color: var(--text-primary);
     background: rgba(153, 69, 255, 0.1);
     border-left-color: var(--primary-color);
+}
+
+.side-menu .whitepaper-link {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 600;
 }
 
 .side-menu .mint-link {

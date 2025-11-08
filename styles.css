@@ -245,14 +245,22 @@ body::after {
 .mobile-menu-toggle {
     display: none;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     cursor: pointer;
     z-index: 1001;
-    padding: 8px;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    position: relative;
+    min-width: 40px;
+    min-height: 40px;
+    justify-content: center;
+    align-items: center;
 }
 
 .mobile-menu-toggle span {
-    width: 25px;
+    display: block;
+    width: 28px;
     height: 3px;
     background: var(--text-primary);
     border-radius: 2px;
@@ -1085,7 +1093,12 @@ body::after {
     }
 
     .mobile-menu-toggle {
-        display: flex;
+        display: flex !important;
+    }
+    
+    /* Debug - temporary */
+    .mobile-menu-toggle {
+        border: 2px solid red !important;
     }
 
     .hero-title {

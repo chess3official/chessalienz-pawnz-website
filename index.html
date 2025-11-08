@@ -302,35 +302,18 @@
     </footer>
 
     <script>
-        // Inline mobile menu script for immediate loading
+        // Mobile menu script
         document.addEventListener('DOMContentLoaded', function() {
-            // Create debug indicator
-            const debugDiv = document.createElement('div');
-            debugDiv.id = 'debug-indicator';
-            debugDiv.style.cssText = 'position: fixed; top: 0; left: 0; background: yellow; color: black; padding: 10px; z-index: 10000; font-size: 12px; max-width: 300px; word-wrap: break-word;';
-            debugDiv.textContent = 'Debug: Loading...';
-            document.body.appendChild(debugDiv);
-
             // Mobile menu toggle
             const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
             const navMenu = document.querySelector('.nav-menu');
-
-            debugDiv.textContent = `Toggle: ${!!mobileMenuToggle}, Menu: ${!!navMenu}`;
 
             if (mobileMenuToggle && navMenu) {
                 mobileMenuToggle.addEventListener('click', function(e) {
                     e.preventDefault();
                     navMenu.classList.toggle('active');
                     mobileMenuToggle.classList.toggle('active');
-                    
-                    const isActive = navMenu.classList.contains('active');
-                    debugDiv.textContent = `Menu active: ${isActive} | Classes: ${navMenu.className}`;
-                    debugDiv.style.background = isActive ? 'lime' : 'yellow';
                 });
-            } else {
-                debugDiv.textContent = 'ERROR: Elements not found!';
-                debugDiv.style.background = 'red';
-                debugDiv.style.color = 'white';
             }
 
             // Smooth scrolling for anchor links

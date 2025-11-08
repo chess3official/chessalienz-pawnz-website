@@ -1096,16 +1096,6 @@ body::after {
     .mobile-menu-toggle {
         display: flex !important;
     }
-    
-    /* Debug - temporary */
-    .mobile-menu-toggle {
-        border: 2px solid red !important;
-    }
-    
-    .nav-menu.active {
-        border: 3px solid lime !important;
-        box-shadow: 0 0 20px lime !important;
-    }
 
     .hero-title {
         font-size: 2.5rem;

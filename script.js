@@ -1,22 +1,32 @@
 // Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
+    // Create debug indicator
+    const debugDiv = document.createElement('div');
+    debugDiv.id = 'debug-indicator';
+    debugDiv.style.cssText = 'position: fixed; top: 0; left: 0; background: yellow; color: black; padding: 10px; z-index: 10000; font-size: 12px; max-width: 300px;';
+    debugDiv.textContent = 'Debug: Loading...';
+    document.body.appendChild(debugDiv);
+
     // Mobile menu toggle
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const navMenu = document.querySelector('.nav-menu');
 
-    console.log('Mobile menu toggle:', mobileMenuToggle);
-    console.log('Nav menu:', navMenu);
+    debugDiv.textContent = `Toggle: ${!!mobileMenuToggle}, Menu: ${!!navMenu}`;
 
     if (mobileMenuToggle && navMenu) {
         mobileMenuToggle.addEventListener('click', function(e) {
             e.preventDefault();
-            console.log('Hamburger clicked!');
             navMenu.classList.toggle('active');
             mobileMenuToggle.classList.toggle('active');
-            console.log('Menu active:', navMenu.classList.contains('active'));
+            
+            const isActive = navMenu.classList.contains('active');
+            debugDiv.textContent = `Menu active: ${isActive} | Classes: ${navMenu.className}`;
+            debugDiv.style.background = isActive ? 'lime' : 'yellow';
         });
     } else {
-        console.error('Mobile menu elements not found!');
+        debugDiv.textContent = 'ERROR: Elements not found!';
+        debugDiv.style.background = 'red';
+        debugDiv.style.color = 'white';
     }
 
     // Smooth scrolling for anchor links

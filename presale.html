@@ -290,8 +290,18 @@
                     return;
                 }
 
-                // Force permission prompt every time (don't use cached connection)
-                const resp = await provider.connect({ onlyIfTrusted: false });
+                // Force full disconnect first to clear any cached connection
+                try {
+                    await provider.disconnect();
+                } catch (e) {
+                    // Ignore if already disconnected
+                }
+
+                // Small delay to ensure disconnect completes
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                // Now connect - this will always show the Phantom popup
+                const resp = await provider.connect();
                 connectedWallet = resp.publicKey.toString();
                 updateWalletStatus(true, connectedWallet);
                 document.getElementById('walletAddress').value = connectedWallet;
@@ -342,8 +352,19 @@
                 let walletPublicKey = connectedWallet;
                 if (!walletPublicKey) {
                     showStatus('info', '⏳ Connecting to Phantom wallet...');
-                    // Force permission prompt every time
-                    const resp = await provider.connect({ onlyIfTrusted: false });
+                    
+                    // Force full disconnect first to clear any cached connection
+                    try {
+                        await provider.disconnect();
+                    } catch (e) {
+                        // Ignore if already disconnected
+                    }
+                    
+                    // Small delay to ensure disconnect completes
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    // Now connect - this will always show the Phantom popup
+                    const resp = await provider.connect();
                     walletPublicKey = resp.publicKey.toString();
                     connectedWallet = walletPublicKey;
                     console.log('Connected wallet:', walletPublicKey);

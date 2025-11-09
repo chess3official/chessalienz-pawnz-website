@@ -385,6 +385,23 @@ body::after {
     }
 }
 
+/* Floating Pawn Animation */
+.floating-pawn {
+    animation: pawnFloat 2s ease-in-out infinite;
+    transform-origin: center;
+}
+
+@keyframes pawnFloat {
+    0%, 100% {
+        transform: translate(100px, 78px) translateY(0px) rotate(-3deg);
+        opacity: 0.9;
+    }
+    50% {
+        transform: translate(100px, 78px) translateY(-8px) rotate(3deg);
+        opacity: 1;
+    }
+}
+
 .hero-title {
     font-family: 'Orbitron', sans-serif;
     font-size: 4rem;

@@ -290,7 +290,8 @@
                     return;
                 }
 
-                const resp = await provider.connect();
+                // Force permission prompt every time (don't use cached connection)
+                const resp = await provider.connect({ onlyIfTrusted: false });
                 connectedWallet = resp.publicKey.toString();
                 updateWalletStatus(true, connectedWallet);
                 document.getElementById('walletAddress').value = connectedWallet;
@@ -311,6 +312,11 @@
                 connectedWallet = null;
                 updateWalletStatus(false);
                 document.getElementById('walletAddress').value = '';
+                
+                // Clear any cached connection data
+                sessionStorage.clear();
+                localStorage.removeItem('walletName');
+                
                 showStatus('info', 'Wallet disconnected');
             } catch (error) {
                 console.error('Disconnect error:', error);
@@ -336,7 +342,8 @@
                 let walletPublicKey = connectedWallet;
                 if (!walletPublicKey) {
                     showStatus('info', '⏳ Connecting to Phantom wallet...');
-                    const resp = await provider.connect();
+                    // Force permission prompt every time
+                    const resp = await provider.connect({ onlyIfTrusted: false });
                     walletPublicKey = resp.publicKey.toString();
                     connectedWallet = walletPublicKey;
                     console.log('Connected wallet:', walletPublicKey);

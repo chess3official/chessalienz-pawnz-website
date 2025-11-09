@@ -393,11 +393,11 @@ body::after {
 
 @keyframes pawnFloat {
     0%, 100% {
-        transform: translate(85px, 85px) translateY(0px) rotate(8deg);
+        transform: translate(88px, 88px) translateY(0px) rotate(8deg);
         opacity: 0.9;
     }
     50% {
-        transform: translate(85px, 85px) translateY(-8px) rotate(12deg);
+        transform: translate(88px, 88px) translateY(-8px) rotate(12deg);
         opacity: 1;
     }
 }

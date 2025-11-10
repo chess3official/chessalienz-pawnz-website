@@ -292,9 +292,19 @@
                 <div style="margin-bottom: 8px;">Regular price: <strong>1 SOL</strong> → Your price: <strong>0.5 SOL</strong> = <span style="color: #10b981; font-weight: bold;">Save 0.5 SOL!</span></div>
                 <div style="margin-bottom: 8px;">✨ <strong>Mint pass holders get FREE minting when live mint opens!</strong></div>
                 <div style="font-style: italic; color: #666;">Only 1000 mint passes available</div>
+                
+                <!-- Quantity Selector -->
+                <div style="margin-top: 20px; margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Quantity (Max 10 per transaction):</label>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                        <button onclick="decreaseQuantity()" style="width: 40px; height: 40px; font-size: 20px; background: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer;">-</button>
+                        <input type="number" id="passQuantity" value="1" min="1" max="10" style="width: 80px; text-align: center; font-size: 18px; font-weight: bold; padding: 8px; border: 2px solid var(--primary-color); border-radius: 8px;" readonly>
+                        <button onclick="increaseQuantity()" style="width: 40px; height: 40px; font-size: 20px; background: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer;">+</button>
+                    </div>
+                </div>
             </div>
             <button class="btn-presale" onclick="buyPresaleToken()">
-                Buy PAWNZ Mint Pass (0.5 SOL) - SAVE 50%!
+                Buy <span id="quantityDisplay">1</span> PAWNZ Mint Pass(es) - SAVE 50%!
             </button>
         </div>
 
@@ -408,8 +418,38 @@
             }
         }
 
+        // Quantity selector functions
+        function increaseQuantity() {
+            const input = document.getElementById('passQuantity');
+            const display = document.getElementById('quantityDisplay');
+            let value = parseInt(input.value);
+            if (value < 10) {
+                value++;
+                input.value = value;
+                display.textContent = value;
+            }
+        }
+
+        function decreaseQuantity() {
+            const input = document.getElementById('passQuantity');
+            const display = document.getElementById('quantityDisplay');
+            let value = parseInt(input.value);
+            if (value > 1) {
+                value--;
+                input.value = value;
+                display.textContent = value;
+            }
+        }
+
         async function buyPresaleToken() {
             const statusDiv = document.getElementById('status');
+            const quantity = parseInt(document.getElementById('passQuantity').value);
+            
+            // Validate quantity
+            if (quantity < 1 || quantity > 10) {
+                showStatus('error', '❌ Quantity must be between 1 and 10');
+                return;
+            }
             
             // Disable buttons
             const buttons = document.querySelectorAll('button');
@@ -491,7 +531,8 @@
                     },
                     body: JSON.stringify({
                         walletAddress: walletPublicKey,
-                        transactionSignature: signed.signature
+                        transactionSignature: signed.signature,
+                        quantity: quantity
                     })
                 });
 
@@ -499,11 +540,13 @@
                 console.log('API Response:', data);
 
                 if (response.ok && data.success) {
-                    showStatus('success', `✅ Success! Presale mint pass purchased!<br>Mint pass transferred to your wallet!<br><a href="${data.explorerUrl}" target="_blank">View on Explorer</a>`);
+                    const passText = quantity === 1 ? 'pass' : 'passes';
+                    showStatus('success', `✅ Success! ${quantity} presale mint ${passText} purchased!<br>Mint ${passText} transferred to your wallet!<br><a href="${data.explorerUrl}" target="_blank">View on Explorer</a>`);
                 } else {
                     // Check if it's the "Insufficient payment" error but transaction actually went through
                     if (data.error?.includes('Insufficient payment') || data.message?.includes('Insufficient payment')) {
-                        showStatus('success', '✅ Transaction completed! Your mint pass should arrive shortly. Check your wallet in a few moments.');
+                        const passText = quantity === 1 ? 'pass' : 'passes';
+                        showStatus('success', `✅ Transaction completed! Your ${quantity} mint ${passText} should arrive shortly. Check your wallet in a few moments.`);
                     } else {
                         const errorMsg = data.error || data.message || 'Unknown error';
                         const detailMsg = data.details ? `<br>Details: ${data.details}` : '';

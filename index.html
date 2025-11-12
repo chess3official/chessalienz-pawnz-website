@@ -189,9 +189,21 @@
                     The Chessalienz: Pawnz collection features a sophisticated 4-tier rarity system designed to create scarcity and value across the collection.
                 </p>
                 
-                <!-- Rarity Chart -->
-                <div class="rarity-chart-container">
-                    <canvas id="rarityChart"></canvas>
+                <!-- Rarity Visualization Grid -->
+                <div class="rarity-visualization">
+                    <!-- NFT Preview Carousel -->
+                    <div class="nft-preview-container">
+                        <div class="nft-preview-label">Sample NFTs</div>
+                        <div class="nft-preview-box">
+                            <img id="nftCarousel" src="" alt="NFT Preview" />
+                            <div class="nft-preview-number">#<span id="nftNumber">0</span></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Rarity Chart -->
+                    <div class="rarity-chart-container">
+                        <canvas id="rarityChart"></canvas>
+                    </div>
                 </div>
                 
                 <div class="rarity-tiers">
@@ -395,6 +407,42 @@
     
     <!-- Rarity Chart Script -->
     <script>
+        // NFT Carousel - Cycle through 60 random NFTs from test output
+        const nftCarousel = document.getElementById('nftCarousel');
+        const nftNumber = document.getElementById('nftNumber');
+        
+        if (nftCarousel && nftNumber) {
+            // Generate 60 random numbers between 0-199 (test output range)
+            const randomNFTs = [];
+            const usedNumbers = new Set();
+            
+            while (randomNFTs.length < 60) {
+                const num = Math.floor(Math.random() * 200);
+                if (!usedNumbers.has(num)) {
+                    randomNFTs.push(num);
+                    usedNumbers.add(num);
+                }
+            }
+            
+            let currentIndex = 0;
+            
+            // Function to update the displayed NFT
+            function updateNFT() {
+                const nftId = randomNFTs[currentIndex];
+                // Use a placeholder path - update this to your actual image hosting
+                nftCarousel.src = `https://raw.githubusercontent.com/chess3official/chessalienz-pawnz-nft-collection/main/output/images/${nftId}.png`;
+                nftNumber.textContent = nftId;
+                
+                currentIndex = (currentIndex + 1) % randomNFTs.length;
+            }
+            
+            // Initial load
+            updateNFT();
+            
+            // Update every 500ms (2 images per second)
+            setInterval(updateNFT, 500);
+        }
+        
         // Initialize Rarity Pie Chart
         const ctx = document.getElementById('rarityChart');
         if (ctx) {

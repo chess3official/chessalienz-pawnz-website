@@ -196,7 +196,6 @@
                         <div class="nft-preview-label">Sample NFTs</div>
                         <div class="nft-preview-box">
                             <img id="nftCarousel" src="" alt="NFT Preview" />
-                            <div class="nft-preview-number">#<span id="nftNumber">0</span></div>
                         </div>
                     </div>
                     
@@ -206,55 +205,38 @@
                     </div>
                 </div>
                 
-                <div class="rarity-tiers">
-                    <div class="rarity-tier ultra-rare">
-                        <div class="tier-header">
-                            <h3>Ultra Rare</h3>
+                <div class="rarity-tiers-compact">
+                    <div class="rarity-tier-compact ultra-rare">
+                        <div class="tier-header-compact">
+                            <h4>Ultra Rare</h4>
                             <span class="tier-percentage">0.84%</span>
                         </div>
                         <div class="tier-count">42 NFTs</div>
-                        <ul class="tier-features">
-                            <li>All matching ultra traits</li>
-                            <li>Exclusive hollow backgrounds</li>
-                            <li>Foil overlay effect</li>
-                            <li>Only 1 per character variant</li>
-                        </ul>
+                        <p class="tier-description">All matching ultra traits • Exclusive hollow backgrounds • Foil overlay effect • Only 1 per character variant</p>
                     </div>
-                    <div class="rarity-tier super-rare">
-                        <div class="tier-header">
-                            <h3>Super Rare</h3>
+                    <div class="rarity-tier-compact super-rare">
+                        <div class="tier-header-compact">
+                            <h4>Super Rare</h4>
                             <span class="tier-percentage">1.68%</span>
                         </div>
                         <div class="tier-count">84 NFTs</div>
-                        <ul class="tier-features">
-                            <li>All matching regular traits</li>
-                            <li>Exclusive shiny backgrounds</li>
-                            <li>Only 2 per character variant</li>
-                        </ul>
+                        <p class="tier-description">All matching regular traits • Exclusive shiny backgrounds • Only 2 per character variant</p>
                     </div>
-                    <div class="rarity-tier rare">
-                        <div class="tier-header">
-                            <h3>Rare</h3>
+                    <div class="rarity-tier-compact rare">
+                        <div class="tier-header-compact">
+                            <h4>Rare</h4>
                             <span class="tier-percentage">5%</span>
                         </div>
                         <div class="tier-count">250 NFTs</div>
-                        <ul class="tier-features">
-                            <li>At least 1 ultra trait</li>
-                            <li>Standard backgrounds</li>
-                            <li>Premium mixed combinations</li>
-                        </ul>
+                        <p class="tier-description">At least 1 ultra trait • Standard backgrounds • Premium mixed combinations</p>
                     </div>
-                    <div class="rarity-tier common">
-                        <div class="tier-header">
-                            <h3>Common & Uncommon</h3>
+                    <div class="rarity-tier-compact common">
+                        <div class="tier-header-compact">
+                            <h4>Common & Uncommon</h4>
                             <span class="tier-percentage">92.48%</span>
                         </div>
                         <div class="tier-count">4,624 NFTs</div>
-                        <ul class="tier-features">
-                            <li>Uncommon: Matching regular traits</li>
-                            <li>Common: Random combinations</li>
-                            <li>Wide variety of characters</li>
-                        </ul>
+                        <p class="tier-description">Uncommon: Matching regular traits • Common: Random combinations • Wide variety of characters</p>
                     </div>
                 </div>
                 <div class="rarity-note">
@@ -409,9 +391,8 @@
     <script>
         // NFT Carousel - Cycle through 60 random NFTs from test output
         const nftCarousel = document.getElementById('nftCarousel');
-        const nftNumber = document.getElementById('nftNumber');
         
-        if (nftCarousel && nftNumber) {
+        if (nftCarousel) {
             // Generate 60 random numbers between 0-199 (test output range)
             const randomNFTs = [];
             const usedNumbers = new Set();
@@ -429,9 +410,11 @@
             // Function to update the displayed NFT
             function updateNFT() {
                 const nftId = randomNFTs[currentIndex];
-                // Use a placeholder path - update this to your actual image hosting
-                nftCarousel.src = `https://raw.githubusercontent.com/chess3official/chessalienz-pawnz-nft-collection/main/output/images/${nftId}.png`;
-                nftNumber.textContent = nftId;
+                // Try local path first, fallback to GitHub if needed
+                nftCarousel.src = `output/images/${nftId}.png`;
+                nftCarousel.onerror = function() {
+                    this.src = `https://raw.githubusercontent.com/chess3official/chessalienz-pawnz-nft-collection/main/output/images/${nftId}.png`;
+                };
                 
                 currentIndex = (currentIndex + 1) % randomNFTs.length;
             }
@@ -439,8 +422,8 @@
             // Initial load
             updateNFT();
             
-            // Update every 500ms (2 images per second)
-            setInterval(updateNFT, 500);
+            // Update every 333ms (3 images per second)
+            setInterval(updateNFT, 333);
         }
         
         // Initialize Rarity Pie Chart

@@ -1178,6 +1178,79 @@ body::after {
     max-height: 400px;
 }
 
+/* Compact Rarity Tiers */
+.rarity-tiers-compact {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.rarity-tier-compact {
+    background: rgba(26, 26, 26, 0.4);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    border: 1px solid rgba(153, 69, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.rarity-tier-compact:hover {
+    border-color: rgba(153, 69, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(153, 69, 255, 0.15);
+}
+
+.tier-header-compact {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.tier-header-compact h4 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.rarity-tier-compact.ultra-rare .tier-header-compact h4 {
+    color: rgba(255, 215, 0, 1);
+}
+
+.rarity-tier-compact.super-rare .tier-header-compact h4 {
+    color: rgba(192, 192, 192, 1);
+}
+
+.rarity-tier-compact.rare .tier-header-compact h4 {
+    color: rgba(205, 127, 50, 1);
+}
+
+.rarity-tier-compact.common .tier-header-compact h4 {
+    color: var(--primary-color);
+}
+
+.rarity-tier-compact .tier-percentage {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--secondary-color);
+}
+
+.rarity-tier-compact .tier-count {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.tier-description {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--text-secondary);
+    margin: 0;
+}
+
 @media (max-width: 968px) {
     .rarity-visualization {
         grid-template-columns: 1fr;

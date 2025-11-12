@@ -247,21 +247,22 @@
     <section id="about" class="section about">
         <div class="container">
             <h2 class="section-title">About</h2>
-            <div class="chess3-logo" style="text-align: center; margin: 2rem 0;">
+            <div class="chess3-logo" style="text-align: center; margin: 2rem 0; display: flex; justify-content: center; align-items: center; gap: 1.5rem;">
                 <img src="logob.png" alt="Chess3 Logo" style="max-width: 200px;">
+                <img src="logomini.png" alt="Chess3 Mini Logo" style="max-width: 80px;">
             </div>
-            <div class="about-content">
-                <div class="about-text" style="text-align: center; max-width: 800px; margin: 0 auto;">
-                    <p>
+            <div class="about-content" style="max-width: 900px; margin: 0 auto;">
+                <div class="about-text" style="text-align: center;">
+                    <p style="margin-bottom: 1.5rem; font-size: 1.1rem; line-height: 1.8;">
                         Chess3 is the next 3volution of online chess, built on Solana. Chess + Web3 = CHESS3 .
                     </p>
-                    <p class="disclaimer">
+                    <p class="disclaimer" style="margin-bottom: 2rem; font-size: 0.95rem;">
                         <em>CHESS3 is an independent project and is not affiliated with Chess.com, FIDE, or any other chess organization.</em>
                     </p>
-                    <p>
+                    <p style="margin-bottom: 1.5rem; font-size: 1.05rem; font-weight: 600;">
                         Chessalienz: Pawnz holders gain exclusive access to:
                     </p>
-                    <ul style="text-align: left; display: inline-block;">
+                    <ul style="text-align: left; display: inline-block; margin-bottom: 2rem; line-height: 2;">
                         <li>Early access to the Chess3 platform</li>
                         <li>Exclusive tournaments with prize pools</li>
                         <li>Governance rights in platform decisions</li>
@@ -378,32 +379,24 @@
             // Available NFT IDs in the output folder
             const availableNFTs = [0, 36, 54, 64, 66, 100, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199];
             
-            // Function to update the displayed NFT with smooth fade transition
+            // Function to update the displayed NFT
             function updateNFT() {
-                // Fade out
-                nftCarousel.style.opacity = '0';
+                // Pick a random NFT from available IDs
+                const randomIndex = Math.floor(Math.random() * availableNFTs.length);
+                const nftId = availableNFTs[randomIndex];
                 
-                setTimeout(() => {
-                    // Pick a random NFT from available IDs
-                    const randomIndex = Math.floor(Math.random() * availableNFTs.length);
-                    const nftId = availableNFTs[randomIndex];
-                    
-                    // Try local path first, fallback to GitHub if needed
-                    nftCarousel.src = `output/images/${nftId}.png`;
-                    nftCarousel.onerror = function() {
-                        this.src = `https://raw.githubusercontent.com/chess3official/chessalienz-pawnz-nft-collection/main/output/images/${nftId}.png`;
-                    };
-                    
-                    // Fade in
-                    nftCarousel.style.opacity = '1';
-                }, 100);
+                // Try local path first, fallback to GitHub if needed
+                nftCarousel.src = `output/images/${nftId}.png`;
+                nftCarousel.onerror = function() {
+                    this.src = `https://raw.githubusercontent.com/chess3official/chessalienz-pawnz-nft-collection/main/output/images/${nftId}.png`;
+                };
             }
             
             // Initial load
             updateNFT();
             
-            // Update every 250ms (4 images per second)
-            setInterval(updateNFT, 250);
+            // Update every 333ms (3 images per second)
+            setInterval(updateNFT, 333);
         }
         
         // Initialize Rarity Pie Chart

@@ -130,6 +130,11 @@ body::after {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding-left: 10px;
+}
+
+.logo {
+    margin-right: auto;
 }
 
 .logo h1 {
@@ -293,7 +298,7 @@ body::after {
     left: 0;
     top: 80px;
     bottom: 0;
-    width: 200px;
+    width: 180px;
     background: var(--card-bg);
     border-right: 1px solid var(--border-color);
     padding: 2rem 0;

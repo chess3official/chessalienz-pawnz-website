@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pawnz NFT - Presale Mint Pass</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <style>
+        /* Presale-specific styles that extend homepage theme */
+        body {
+            padding-top: 100px;
+            min-height: 100vh;
+            background: #0f0f0f; /* Lighter dark background */
+        }
+
+        /* Hide stars and background images on presale page */
+        .stars, .stars2, .stars3 {
+            display: none !important;
+        }
+
+        body::before, body::after {
+            display: none !important;
+        }
+
+        .presale-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .presale-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .presale-header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .container {
+            background: rgba(26, 26, 26, 0.95);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            margin: 0 auto;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 60px rgba(153, 69, 255, 0.1);
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .info-box {
+            background: rgba(153, 69, 255, 0.1);
+            border: 1px solid rgba(153, 69, 255, 0.3);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .info-box strong {
+            color: var(--secondary-color);
+        }
+
+        .mint-card {
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            transition: all 0.3s;
+        }
+
+        .mint-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 20px rgba(153, 69, 255, 0.2);
+        }
+
+        .mint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .mint-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .mint-price {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .mint-details {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-presale {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-presale:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(153, 69, 255, 0.4);
+        }
+
+        .btn-regular {
+            background: linear-gradient(135deg, #666, #999);
+            color: white;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin-top: 25px;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            border: 1px solid;
+        }
+
+        .status-success {
+            background: rgba(20, 241, 149, 0.1);
+            color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-color: #ef4444;
+        }
+
+        .status-info {
+            background: rgba(153, 69, 255, 0.1);
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .wallet-input {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+
+        .wallet-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(153, 69, 255, 0.1);
+        }
+
+        #walletStatus {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        #walletStatus button {
+            width: auto;
+            padding: 12px 24px;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Stars Background -->
+    <div class="stars"></div>
+    <div class="stars2"></div>
+    <div class="stars3"></div>
+
+    <div class="container">
+        <div style="text-align: center;">
+            <span class="badge">🚀 MAINNET - LIVE</span>
+        </div>
+
+        <!-- Wallet Status -->
+        <div id="walletStatus" style="text-align: center; margin-bottom: 20px; padding: 15px; background: #f3f4f6; border-radius: 10px;">
+            <div style="font-weight: bold; color: #666; margin-bottom: 10px;">Wallet Status</div>
+            <div id="walletStatusText" style="color: #ef4444; font-weight: 600; margin-bottom: 10px;">❌ Not Connected</div>
+            <div id="walletAddressDisplay" style="font-size: 0.9rem; color: #666; margin-bottom: 10px;"></div>
+            <button id="connectBtn" onclick="connectWallet()" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                Connect Phantom Wallet
+            </button>
+            <button id="disconnectBtn" onclick="disconnectWallet()" style="display: none; padding: 10px 20px; background: #ef4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                Disconnect Wallet
+            </button>
+        </div>
+
+        <h1>🎮 Pawnz NFT</h1>
+        <p class="subtitle">Presale Mint Pass System - Two Phase Mint</p>
+
+        <div class="info-box">
+            <strong>🎫 How Presale Works:</strong><br>
+            <strong>Phase 1:</strong> Buy a PAWNZ mint pass for 2 SOL (1000 available)<br>
+            <strong>Phase 2:</strong> Mint pass holders mint NFT for FREE during the live mint!<br>
+            <em>💎 Save 1 SOL - Only 1000 mint passes available!</em>
+        </div>
+
+        <input 
+            type="text" 
+            id="walletAddress" 
+            class="wallet-input" 
+            placeholder="Enter your Solana wallet address"
+            value=""
+        >
+
+        <div class="mint-card">
+            <div class="mint-header">
+                <div class="mint-title" style="font-size: 1.3rem;">🎁 Phase 1: Buy PAWNZ Mint Pass</div>
+                <div class="mint-price">2 SOL</div>
+            </div>
+            <div class="mint-details" style="line-height: 1.8;">
+                <div style="color: #10b981; font-weight: bold; margin-bottom: 8px;">💰 33% DISCOUNT - Pay 2 SOL now, mint for FREE later!</div>
+                <div style="margin-bottom: 8px;">Regular price: <strong>3 SOL</strong> → Your price: <strong>2 SOL</strong> = <span style="color: #10b981; font-weight: bold;">Save 1 SOL!</span></div>
+                <div style="margin-bottom: 8px;">✨ <strong>Mint pass holders get FREE minting when live mint opens!</strong></div>
+                <div style="font-style: italic; color: #666;">Only 1000 mint passes available</div>
+                
+                <!-- Quantity Selector -->
+                <div style="margin-top: 20px; margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600;">Quantity (Max 10 per transaction):</label>
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                        <button onclick="decreaseQuantity()" style="width: 40px; height: 40px; font-size: 20px; background: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer;">-</button>
+                        <input type="number" id="passQuantity" value="1" min="1" max="10" style="width: 80px; text-align: center; font-size: 18px; font-weight: bold; padding: 8px; border: 2px solid var(--primary-color); border-radius: 8px;" readonly>
+                        <button onclick="increaseQuantity()" style="width: 40px; height: 40px; font-size: 20px; background: var(--primary-color); color: white; border: none; border-radius: 8px; cursor: pointer;">+</button>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-presale" onclick="buyPresaleToken()">
+                Buy <span id="quantityDisplay">1</span> PAWNZ Mint Pass(es) - SAVE 1 SOL!
+            </button>
+        </div>
+
+        <div class="mint-card" style="opacity: 0.5;">
+            <div class="mint-header">
+                <div class="mint-title">⚡ Public Mint</div>
+                <div class="mint-price">3 SOL</div>
+            </div>
+            <div class="mint-details">
+                🔒 <strong>LOCKED</strong> - Public mint opens after presale completes<br>
+                <em>Buy a PAWNZ mint pass to secure your FREE mint during the live mint!</em>
+            </div>
+            <button class="btn-regular" disabled style="opacity: 0.5; cursor: not-allowed; background: #999;">
+                🔒 Mint Locked
+            </button>
+        </div>
+
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // MAINNET CONFIGURATION
+        const API_URL = 'https://pawnz-mint-api-production.up.railway.app';
+        const AUTHORITY_WALLET = 'YOUR_MAINNET_WALLET_ADDRESS'; // TODO: Replace with actual mainnet wallet
+        const PRESALE_PRICE_SOL = 2;
+        const SOLANA_NETWORK = 'https://api.mainnet-beta.solana.com'; // MAINNET
+
+        // Check if Phantom is installed
+        function getProvider() {
+            if ('phantom' in window) {
+                const provider = window.phantom?.solana;
+                if (provider?.isPhantom) {
+                    return provider;
+                }
+            }
+            window.open('https://phantom.app/', '_blank');
+        }
+
+        // Store connected wallet
+        let connectedWallet = null;
+
+        // Update wallet status display
+        function updateWalletStatus(connected, address = '') {
+            const statusText = document.getElementById('walletStatusText');
+            const addressDisplay = document.getElementById('walletAddressDisplay');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            
+            if (connected) {
+                statusText.innerHTML = '✅ Connected';
+                statusText.style.color = '#10b981';
+                addressDisplay.textContent = address;
+                connectBtn.style.display = 'none';
+                disconnectBtn.style.display = 'inline-block';
+            } else {
+                statusText.innerHTML = '❌ Not Connected';
+                statusText.style.color = '#ef4444';
+                addressDisplay.textContent = '';
+                connectBtn.style.display = 'inline-block';
+                disconnectBtn.style.display = 'none';
+            }
+        }
+
+        // Connect wallet function
+        async function connectWallet() {
+            try {
+                const provider = getProvider();
+                if (!provider) {
+                    alert('Please install Phantom wallet');
+                    return;
+                }
+
+                // Force full disconnect first to clear any cached connection
+                try {
+                    await provider.disconnect();
+                } catch (e) {
+                    // Ignore if already disconnected
+                }
+
+                // Small delay to ensure disconnect completes
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                // Now connect - this will always show the Phantom popup
+                const resp = await provider.connect();
+                connectedWallet = resp.publicKey.toString();
+                updateWalletStatus(true, connectedWallet);
+                document.getElementById('walletAddress').value = connectedWallet;
+                showStatus('success', '✅ Wallet connected successfully!');
+            } catch (error) {
+                console.error('Connection error:', error);
+                showStatus('error', '❌ Failed to connect wallet');
+            }
+        }
+
+        // Disconnect wallet function
+        async function disconnectWallet() {
+            try {
+                const provider = getProvider();
+                if (provider) {
+                    await provider.disconnect();
+                }
+                connectedWallet = null;
+                updateWalletStatus(false);
+                document.getElementById('walletAddress').value = '';
+                
+                // Clear any cached connection data
+                sessionStorage.clear();
+                localStorage.removeItem('walletName');
+                
+                showStatus('info', 'Wallet disconnected');
+            } catch (error) {
+                console.error('Disconnect error:', error);
+            }
+        }
+
+        // Quantity selector functions
+        function increaseQuantity() {
+            const input = document.getElementById('passQuantity');
+            const display = document.getElementById('quantityDisplay');
+            let value = parseInt(input.value);
+            if (value < 10) {
+                value++;
+                input.value = value;
+                display.textContent = value;
+            }
+        }
+
+        function decreaseQuantity() {
+            const input = document.getElementById('passQuantity');
+            const display = document.getElementById('quantityDisplay');
+            let value = parseInt(input.value);
+            if (value > 1) {
+                value--;
+                input.value = value;
+                display.textContent = value;
+            }
+        }
+
+        async function buyPresaleToken() {
+            const statusDiv = document.getElementById('status');
+            const quantity = parseInt(document.getElementById('passQuantity').value);
+            
+            // Validate quantity
+            if (quantity < 1 || quantity > 10) {
+                showStatus('error', '❌ Quantity must be between 1 and 10');
+                return;
+            }
+            
+            // Disable buttons
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => btn.disabled = true);
+
+            try {
+                // Get Phantom provider
+                const provider = getProvider();
+                if (!provider) {
+                    showStatus('error', '❌ Please install Phantom wallet');
+                    return;
+                }
+
+                // Connect wallet if not already connected
+                let walletPublicKey = connectedWallet;
+                if (!walletPublicKey) {
+                    showStatus('info', '⏳ Connecting to Phantom wallet...');
+                    
+                    // Force full disconnect first to clear any cached connection
+                    try {
+                        await provider.disconnect();
+                    } catch (e) {
+                        // Ignore if already disconnected
+                    }
+                    
+                    // Small delay to ensure disconnect completes
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    
+                    // Now connect - this will always show the Phantom popup
+                    const resp = await provider.connect();
+                    walletPublicKey = resp.publicKey.toString();
+                    connectedWallet = walletPublicKey;
+                    console.log('Connected wallet:', walletPublicKey);
+
+                    // Update wallet status
+                    updateWalletStatus(true, walletPublicKey);
+
+                    // Update wallet address field
+                    document.getElementById('walletAddress').value = walletPublicKey;
+                } else {
+                    console.log('Using already connected wallet:', walletPublicKey);
+                }
+
+                showStatus('info', '💸 Creating payment transaction...');
+
+                // Create payment transaction - MAINNET
+                const connection = new solanaWeb3.Connection(SOLANA_NETWORK, 'confirmed');
+                const walletPubkey = new solanaWeb3.PublicKey(walletPublicKey);
+                const totalAmount = PRESALE_PRICE_SOL * quantity;
+                const transaction = new solanaWeb3.Transaction().add(
+                    solanaWeb3.SystemProgram.transfer({
+                        fromPubkey: walletPubkey,
+                        toPubkey: new solanaWeb3.PublicKey(AUTHORITY_WALLET),
+                        lamports: totalAmount * solanaWeb3.LAMPORTS_PER_SOL
+                    })
+                );
+
+                // Get recent blockhash
+                transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+                transaction.feePayer = walletPubkey;
+
+                showStatus('info', `✍️ Please approve the ${totalAmount} SOL transaction in Phantom...`);
+
+                // Sign and send transaction
+                const signed = await provider.signAndSendTransaction(transaction);
+                console.log('Transaction signature:', signed.signature);
+
+                showStatus('info', '⏳ Waiting for transaction confirmation...');
+
+                // Wait for confirmation
+                await connection.confirmTransaction(signed.signature);
+
+                showStatus('info', '🎫 Verifying payment and transferring token...');
+
+                // Call API to verify payment and transfer token
+                const response = await fetch(`${API_URL}/api/presale/buy`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        walletAddress: walletPublicKey,
+                        transactionSignature: signed.signature,
+                        quantity: quantity
+                    })
+                });
+
+                const data = await response.json();
+                console.log('API Response:', data);
+
+                if (response.ok && data.success) {
+                    const passText = quantity === 1 ? 'pass' : 'passes';
+                    showStatus('success', `✅ Success! ${quantity} presale mint ${passText} purchased!<br>Mint ${passText} transferred to your wallet!<br><a href="${data.explorerUrl}" target="_blank" style="color: #14F195; text-decoration: underline;">View on Explorer</a>`);
+                } else {
+                    const errorMsg = data.error || data.message || 'Unknown error';
+                    const detailMsg = data.details ? `<br>Details: ${data.details}` : '';
+                    showStatus('error', `❌ Purchase failed: ${errorMsg}${detailMsg}`);
+                    console.error('API Error Details:', data);
+                }
+            } catch (error) {
+                console.error('Purchase error:', error);
+                if (error.message?.includes('User rejected')) {
+                    showStatus('error', '❌ Transaction cancelled by user');
+                } else {
+                    showStatus('error', `❌ Error: ${error.message}`);
+                }
+            } finally {
+                // Re-enable buttons
+                buttons.forEach(btn => btn.disabled = false);
+            }
+        }
+
+        function showStatus(type, message) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status status-${type}`;
+            statusDiv.innerHTML = message;
+            statusDiv.style.display = 'block';
+        }
+
+        // Check API health on load
+        fetch(`${API_URL}/health`)
+            .then(r => r.json())
+            .then(data => console.log('API Status:', data))
+            .catch(e => console.error('API not reachable:', e));
+    </script>
+</body>
+</html>

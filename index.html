@@ -385,65 +385,27 @@
     
     <!-- Rarity Chart Script -->
     <script>
-        // NFT Carousel - Cycle through 60 NFTs: 2 ultra rares, 4 super rares, rest random
+        // NFT Carousel - Randomly flash all images at 4 per second
         const nftCarousel = document.getElementById('nftCarousel');
         
         if (nftCarousel) {
-            const randomNFTs = [];
-            const usedNumbers = new Set();
-            
-            // Add 1 ultra rare (0-41)
-            while (randomNFTs.length < 1) {
-                const num = Math.floor(Math.random() * 42);
-                if (!usedNumbers.has(num)) {
-                    randomNFTs.push(num);
-                    usedNumbers.add(num);
-                }
-            }
-            
-            // Add 2 super rares (42-125)
-            while (randomNFTs.length < 3) {
-                const num = 42 + Math.floor(Math.random() * 84);
-                if (!usedNumbers.has(num)) {
-                    randomNFTs.push(num);
-                    usedNumbers.add(num);
-                }
-            }
-            
-            // Fill rest with random NFTs from entire collection (0-199)
-            while (randomNFTs.length < 60) {
-                const num = Math.floor(Math.random() * 200);
-                if (!usedNumbers.has(num)) {
-                    randomNFTs.push(num);
-                    usedNumbers.add(num);
-                }
-            }
-            
-            // Shuffle the array so ultra/super rares aren't always first
-            for (let i = randomNFTs.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [randomNFTs[i], randomNFTs[j]] = [randomNFTs[j], randomNFTs[i]];
-            }
-            
-            let currentIndex = 0;
-            
-            // Function to update the displayed NFT
+            // Function to update the displayed NFT with random selection
             function updateNFT() {
-                const nftId = randomNFTs[currentIndex];
+                // Pick a random NFT from 0-199
+                const nftId = Math.floor(Math.random() * 200);
+                
                 // Try local path first, fallback to GitHub if needed
                 nftCarousel.src = `output/images/${nftId}.png`;
                 nftCarousel.onerror = function() {
                     this.src = `https://raw.githubusercontent.com/chess3official/chessalienz-pawnz-nft-collection/main/output/images/${nftId}.png`;
                 };
-                
-                currentIndex = (currentIndex + 1) % randomNFTs.length;
             }
             
             // Initial load
             updateNFT();
             
-            // Update every 333ms (3 images per second)
-            setInterval(updateNFT, 333);
+            // Update every 250ms (4 images per second)
+            setInterval(updateNFT, 250);
         }
         
         // Initialize Rarity Pie Chart

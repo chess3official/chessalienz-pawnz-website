@@ -1097,7 +1097,31 @@ body::after {
 }
 
 /* Responsive */
+/* Rarity Chart Styles */
+.rarity-chart-container {
+    max-width: 600px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background: rgba(26, 26, 26, 0.6);
+    border-radius: 20px;
+    border: 1px solid rgba(153, 69, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(153, 69, 255, 0.1);
+}
+
+.rarity-chart-container canvas {
+    max-height: 400px;
+}
+
 @media (max-width: 968px) {
+    .rarity-chart-container {
+        max-width: 100%;
+        padding: 1.5rem;
+    }
+    
+    .rarity-chart-container canvas {
+        max-height: 300px;
+    }
+    
     .side-menu {
         display: none;
     }

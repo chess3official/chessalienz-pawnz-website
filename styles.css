@@ -571,6 +571,32 @@ body::after {
     margin: 0 auto;
 }
 
+.founder-twitter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    background: rgba(153, 69, 255, 0.1);
+    border: 1px solid rgba(153, 69, 255, 0.3);
+    border-radius: 20px;
+    color: var(--primary-color);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.founder-twitter:hover {
+    background: rgba(153, 69, 255, 0.2);
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.founder-twitter svg {
+    flex-shrink: 0;
+}
+
 /* Roadmap Section */
 .roadmap {
     background: var(--card-bg);
@@ -674,6 +700,40 @@ body::after {
 .social-link:hover {
     border-color: var(--primary-color);
     transform: translateY(-2px);
+}
+
+.social-link-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    position: relative;
+}
+
+.social-link-disabled:hover {
+    border-color: var(--border-color);
+    transform: none;
+}
+
+.social-link-disabled::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: rgba(0, 0, 0, 0.9);
+    color: var(--text-primary);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.social-link-disabled:hover::after {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 /* About Section */

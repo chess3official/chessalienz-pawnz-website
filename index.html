@@ -186,7 +186,7 @@
             <h2 class="section-title">Rarity System</h2>
             <div class="rarity-content">
                 <p class="rarity-intro">
-                    The Chessalienz: Pawnz collection features a sophisticated 4-tier rarity system with over 112 million possible combinations.
+                    The Chessalienz: Pawnz collection features a sophisticated 4-tier rarity system.
                 </p>
                 
                 <!-- Rarity Visualization Grid -->
@@ -238,10 +238,6 @@
                         <div class="tier-count">4,624 NFTs</div>
                         <p class="tier-description">Uncommon: Matching regular traits • Common: Random combinations • Wide variety of characters</p>
                     </div>
-                </div>
-                <div class="rarity-note">
-                    <p><strong>Top 2.52%</strong> = Ultra Rare + Super Rare (126 NFTs total)</p>
-                    <p><strong>Top 7.52%</strong> = Ultra + Super + Rare (376 NFTs total)</p>
                 </div>
             </div>
         </div>
@@ -396,8 +392,8 @@
             const randomNFTs = [];
             const usedNumbers = new Set();
             
-            // Add 2 ultra rares (0-41)
-            while (randomNFTs.length < 2) {
+            // Add 1 ultra rare (0-41)
+            while (randomNFTs.length < 1) {
                 const num = Math.floor(Math.random() * 42);
                 if (!usedNumbers.has(num)) {
                     randomNFTs.push(num);
@@ -405,8 +401,8 @@
                 }
             }
             
-            // Add 4 super rares (42-125)
-            while (randomNFTs.length < 6) {
+            // Add 2 super rares (42-125)
+            while (randomNFTs.length < 3) {
                 const num = 42 + Math.floor(Math.random() * 84);
                 if (!usedNumbers.has(num)) {
                     randomNFTs.push(num);
@@ -456,7 +452,7 @@
             new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Ultra Rare (0.84%)', 'Super Rare (1.68%)', 'Rare (5%)', 'Common & Uncommon (92.48%)'],
+                    labels: ['Ultra Rare - 42 NFTs', 'Super Rare - 84 NFTs', 'Rare - 250 NFTs', 'Common & Uncommon - 4,624 NFTs'],
                     datasets: [{
                         data: [42, 84, 250, 4624],
                         backgroundColor: [

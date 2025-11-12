@@ -1329,7 +1329,12 @@ body::after {
     }
 
     .about-content {
-        grid-template-columns: 1fr;
+        flex-direction: column !important;
+        gap: 2rem !important;
+    }
+    
+    .about-logo-side img {
+        height: 180px !important;
     }
 
     .founders-grid {

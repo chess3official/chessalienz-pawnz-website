@@ -186,14 +186,14 @@
             <h2 class="section-title">Rarity System</h2>
             <div class="rarity-content">
                 <p class="rarity-intro">
-                    The Chessalienz: Pawnz collection features a sophisticated 4-tier rarity system designed to create scarcity and value across the collection.
+                    The Chessalienz: Pawnz collection features a sophisticated 4-tier rarity system with over 112 million possible combinations.
                 </p>
                 
                 <!-- Rarity Visualization Grid -->
                 <div class="rarity-visualization">
                     <!-- NFT Preview Carousel -->
                     <div class="nft-preview-container">
-                        <div class="nft-preview-label">Sample NFTs</div>
+                        <div class="nft-preview-label">Over 112,000,000+ Possibilities</div>
                         <div class="nft-preview-box">
                             <img id="nftCarousel" src="" alt="NFT Preview" />
                         </div>
@@ -389,20 +389,44 @@
     
     <!-- Rarity Chart Script -->
     <script>
-        // NFT Carousel - Cycle through 60 random NFTs from test output
+        // NFT Carousel - Cycle through 60 NFTs: 2 ultra rares, 4 super rares, rest random
         const nftCarousel = document.getElementById('nftCarousel');
         
         if (nftCarousel) {
-            // Generate 60 random numbers between 0-199 (test output range)
             const randomNFTs = [];
             const usedNumbers = new Set();
             
+            // Add 2 ultra rares (0-41)
+            while (randomNFTs.length < 2) {
+                const num = Math.floor(Math.random() * 42);
+                if (!usedNumbers.has(num)) {
+                    randomNFTs.push(num);
+                    usedNumbers.add(num);
+                }
+            }
+            
+            // Add 4 super rares (42-125)
+            while (randomNFTs.length < 6) {
+                const num = 42 + Math.floor(Math.random() * 84);
+                if (!usedNumbers.has(num)) {
+                    randomNFTs.push(num);
+                    usedNumbers.add(num);
+                }
+            }
+            
+            // Fill rest with random NFTs from entire collection (0-199)
             while (randomNFTs.length < 60) {
                 const num = Math.floor(Math.random() * 200);
                 if (!usedNumbers.has(num)) {
                     randomNFTs.push(num);
                     usedNumbers.add(num);
                 }
+            }
+            
+            // Shuffle the array so ultra/super rares aren't always first
+            for (let i = randomNFTs.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [randomNFTs[i], randomNFTs[j]] = [randomNFTs[j], randomNFTs[i]];
             }
             
             let currentIndex = 0;

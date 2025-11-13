@@ -198,10 +198,9 @@
                     <div class="nft-preview-container">
                         <div class="nft-preview-label">Over 112,000,000+ Possibilities</div>
                         <div class="nft-preview-box">
-                            <img id="nftCarousel" src="" alt="NFT Preview" />
+                            <img src="nft-carousel.webp" alt="NFT Preview" />
                         </div>
-                    </div>
-                    
+                    </div>                    
                     <!-- Rarity Chart -->
                     <div class="rarity-chart-container">
                         <canvas id="rarityChart"></canvas>
@@ -402,33 +401,6 @@
     
     <!-- Rarity Chart Script -->
     <script>
-        // NFT Carousel - Randomly flash all images at 4 per second
-        const nftCarousel = document.getElementById('nftCarousel');
-        
-        if (nftCarousel) {
-            // Available NFT IDs in the output folder
-            const availableNFTs = [0, 36, 54, 64, 66, 100, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199];
-            
-            // Function to update the displayed NFT
-            function updateNFT() {
-                // Pick a random NFT from available IDs
-                const randomIndex = Math.floor(Math.random() * availableNFTs.length);
-                const nftId = availableNFTs[randomIndex];
-                
-                // Try local path first, fallback to GitHub if needed
-                nftCarousel.src = `output/images/${nftId}.png`;
-                nftCarousel.onerror = function() {
-                    this.src = `https://raw.githubusercontent.com/chess3official/chessalienz-pawnz-nft-collection/main/output/images/${nftId}.png`;
-                };
-            }
-            
-            // Initial load
-            updateNFT();
-            
-            // Update every 333ms (3 images per second)
-            setInterval(updateNFT, 333);
-        }
-        
         // Initialize Rarity Pie Chart
         const ctx = document.getElementById('rarityChart');
         if (ctx) {

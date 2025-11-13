@@ -336,15 +336,52 @@
         const PRESALE_PRICE_SOL = 2;
         const SOLANA_NETWORK = 'https://api.mainnet-beta.solana.com'; // MAINNET
 
-        // Check if Phantom is installed
+        // Check for available wallet providers
         function getProvider() {
-            if ('phantom' in window) {
-                const provider = window.phantom?.solana;
-                if (provider?.isPhantom) {
+            // Check for Magic Eden wallet first (if user has it)
+            if ('magicEden' in window) {
+                const provider = window.magicEden?.solana;
+                if (provider?.isMagicEden) {
+                    console.log('Using Magic Eden wallet');
                     return provider;
                 }
             }
-            window.open('https://phantom.app/', '_blank');
+            
+            // Check for Phantom wallet
+            if ('phantom' in window) {
+                const provider = window.phantom?.solana;
+                if (provider?.isPhantom) {
+                    console.log('Using Phantom wallet');
+                    return provider;
+                }
+            }
+            
+            // Check for Solflare wallet
+            if ('solflare' in window) {
+                const provider = window.solflare;
+                if (provider?.isSolflare) {
+                    console.log('Using Solflare wallet');
+                    return provider;
+                }
+            }
+            
+            // No wallet found - show options
+            alert('No Solana wallet detected. Please install Phantom, Magic Eden, or Solflare wallet.');
+            return null;
+        }
+        
+        // Get wallet name for display
+        function getWalletName() {
+            if ('magicEden' in window && window.magicEden?.solana?.isMagicEden) {
+                return 'Magic Eden';
+            }
+            if ('phantom' in window && window.phantom?.solana?.isPhantom) {
+                return 'Phantom';
+            }
+            if ('solflare' in window && window.solflare?.isSolflare) {
+                return 'Solflare';
+            }
+            return 'Unknown';
         }
 
         // Store connected wallet
@@ -377,9 +414,11 @@
             try {
                 const provider = getProvider();
                 if (!provider) {
-                    alert('Please install Phantom wallet');
                     return;
                 }
+
+                const walletName = getWalletName();
+                showStatus('info', `⏳ Connecting to ${walletName} wallet...`);
 
                 // Force full disconnect first to clear any cached connection
                 try {
@@ -391,12 +430,12 @@
                 // Small delay to ensure disconnect completes
                 await new Promise(resolve => setTimeout(resolve, 100));
 
-                // Now connect - this will always show the Phantom popup
+                // Now connect - this will show the wallet popup
                 const resp = await provider.connect();
                 connectedWallet = resp.publicKey.toString();
                 updateWalletStatus(true, connectedWallet);
                 document.getElementById('walletAddress').value = connectedWallet;
-                showStatus('success', '✅ Wallet connected successfully!');
+                showStatus('success', `✅ ${walletName} wallet connected successfully!`);
             } catch (error) {
                 console.error('Connection error:', error);
                 showStatus('error', '❌ Failed to connect wallet');
@@ -462,17 +501,18 @@
             buttons.forEach(btn => btn.disabled = true);
 
             try {
-                // Get Phantom provider
+                // Get wallet provider
                 const provider = getProvider();
                 if (!provider) {
-                    showStatus('error', '❌ Please install Phantom wallet');
+                    showStatus('error', '❌ Please install a Solana wallet (Phantom, Magic Eden, or Solflare)');
                     return;
                 }
 
                 // Connect wallet if not already connected
                 let walletPublicKey = connectedWallet;
                 if (!walletPublicKey) {
-                    showStatus('info', '⏳ Connecting to Phantom wallet...');
+                    const walletName = getWalletName();
+                    showStatus('info', `⏳ Connecting to ${walletName} wallet...`);
                     
                     // Force full disconnect first to clear any cached connection
                     try {
@@ -484,7 +524,7 @@
                     // Small delay to ensure disconnect completes
                     await new Promise(resolve => setTimeout(resolve, 100));
                     
-                    // Now connect - this will always show the Phantom popup
+                    // Now connect - this will show the wallet popup
                     const resp = await provider.connect();
                     walletPublicKey = resp.publicKey.toString();
                     connectedWallet = walletPublicKey;

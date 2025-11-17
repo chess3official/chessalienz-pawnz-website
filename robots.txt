@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://chessalienz.vercel.app/sitemap.xml

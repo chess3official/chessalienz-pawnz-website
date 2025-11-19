@@ -388,6 +388,10 @@ body::after {
 
 .side-menu .whitepaper-link {
     font-weight: 600;
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    -webkit-text-fill-color: inherit !important;
+    color: var(--text-secondary);
 }
 
 .side-menu .test-link {

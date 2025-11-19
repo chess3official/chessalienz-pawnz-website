@@ -361,7 +361,7 @@ body::after {
     align-items: center;
     justify-content: center;
     background: var(--card-bg);
-    border: 1px solid var(--border-color);
+    border: none;
     color: #ffffff;
     font-size: 1rem;
     flex-shrink: 0;
@@ -376,7 +376,8 @@ body::after {
 .side-menu a.active {
     color: var(--text-primary);
     background: transparent;
-    border-left-color: var(--primary-color);
+    border-left-color: transparent;
+    border-image: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) 1;
 }
 
 .side-menu a:hover .icon,

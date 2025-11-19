@@ -34,6 +34,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Side menu collapse toggle
+    const sideMenu = document.querySelector('.side-menu');
+    const sideMenuToggle = document.querySelector('.side-menu-toggle');
+
+    if (sideMenu && sideMenuToggle) {
+        sideMenuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            sideMenu.classList.toggle('collapsed');
+        });
+    }
 });
 
 // Add scroll effect to header

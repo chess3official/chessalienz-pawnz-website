@@ -298,56 +298,109 @@ body::after {
     left: 0;
     top: 80px;
     bottom: 0;
-    width: 180px;
+    width: 200px;
     background: var(--card-bg);
     border-right: 1px solid var(--border-color);
-    padding: 2rem 0;
+    padding: 1.5rem 0;
     z-index: 100;
+    transition: width 0.3s ease;
+}
+
+.side-menu.collapsed {
+    width: 72px;
+}
+
+.side-menu-toggle {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.5rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    background: rgba(10, 10, 10, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+}
+
+.side-menu-toggle span {
+    display: block;
+    width: 14px;
+    height: 2px;
+    background: var(--text-primary);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.side-menu-toggle span + span {
+    transform: translateY(4px);
 }
 
 .side-menu nav {
     display: flex;
     flex-direction: column;
+    margin-top: 2.75rem;
 }
 
 .side-menu a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     color: var(--text-secondary);
     text-decoration: none;
-    padding: 1rem 2rem;
+    padding: 0.75rem 1.25rem;
     transition: all 0.3s;
     border-left: 3px solid transparent;
+}
+
+.side-menu a .icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(153, 69, 255, 0.15);
+    color: var(--text-primary);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.side-menu a .label {
+    white-space: nowrap;
+    font-size: 0.9rem;
 }
 
 .side-menu a:hover,
 .side-menu a.active {
     color: var(--text-primary);
-    background: rgba(153, 69, 255, 0.1);
+    background: rgba(153, 69, 255, 0.12);
     border-left-color: var(--primary-color);
 }
 
-.side-menu .whitepaper-link {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
-    font-weight: 600;
-}
-
-.side-menu .whitepaper-link:hover,
-.side-menu .whitepaper-link.active {
-    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
-    -webkit-background-clip: text !important;
-    -webkit-text-fill-color: transparent !important;
-    background-clip: text !important;
-}
-
-.side-menu .mint-link {
-    margin-top: auto;
+.side-menu a:hover .icon,
+.side-menu a.active .icon {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-    color: var(--text-primary) !important;
-    text-align: center;
+}
+
+.side-menu .whitepaper-link {
     font-weight: 600;
-    border-left: none;
+}
+
+.side-menu .test-link {
+    margin-top: 1rem;
+}
+
+.side-menu.collapsed a {
+    justify-content: center;
+    padding-right: 0.75rem;
+}
+
+.side-menu.collapsed a .label {
+    display: none;
 }
 
 /* Hero Section */

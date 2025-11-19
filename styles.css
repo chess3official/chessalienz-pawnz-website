@@ -375,13 +375,14 @@ body::after {
 .side-menu a:hover,
 .side-menu a.active {
     color: var(--text-primary);
-    background: rgba(153, 69, 255, 0.12);
+    background: transparent;
     border-left-color: var(--primary-color);
 }
 
 .side-menu a:hover .icon,
 .side-menu a.active .icon {
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-color: transparent;
 }
 
 .side-menu .whitepaper-link {
@@ -403,6 +404,13 @@ body::after {
 
 .side-menu.collapsed .side-menu-toggle span {
     transform: rotate(135deg) translateX(-1px);
+}
+
+/* SVG icons inside side menu */
+.side-menu a .icon svg {
+    width: 16px;
+    height: 16px;
+    fill: #ffffff;
 }
 
 /* Hero Section */

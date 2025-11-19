@@ -328,14 +328,12 @@ body::after {
 
 .side-menu-toggle span {
     display: block;
-    width: 14px;
-    height: 2px;
-    background: var(--text-primary);
-    transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-.side-menu-toggle span + span {
-    transform: translateY(4px);
+    width: 8px;
+    height: 8px;
+    border-top: 2px solid var(--text-primary);
+    border-left: 2px solid var(--text-primary);
+    transform: rotate(-45deg) translateX(1px);
+    transition: transform 0.2s ease;
 }
 
 .side-menu nav {
@@ -362,10 +360,9 @@ body::after {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: rgba(153, 69, 255, 0.15);
-    color: var(--text-primary);
-    font-family: 'Orbitron', sans-serif;
-    font-size: 0.9rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: #ffffff;
+    font-size: 1rem;
     flex-shrink: 0;
 }
 
@@ -401,6 +398,10 @@ body::after {
 
 .side-menu.collapsed a .label {
     display: none;
+}
+
+.side-menu.collapsed .side-menu-toggle span {
+    transform: rotate(135deg) translateX(-1px);
 }
 
 /* Hero Section */

@@ -40,6 +40,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const sideMenuToggle = document.querySelector('.side-menu-toggle');
 
     if (sideMenu && sideMenuToggle) {
+        // Set side menu to collapsed by default
+        sideMenu.classList.add('collapsed');
+        
         sideMenuToggle.addEventListener('click', function(e) {
             e.preventDefault();
             sideMenu.classList.toggle('collapsed');

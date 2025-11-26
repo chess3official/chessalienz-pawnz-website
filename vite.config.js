@@ -5,9 +5,7 @@ export default defineConfig({
     outDir: 'dist',
     rollupOptions: {
       input: {
-        main: 'index.html',
-        testMint: 'test-mint.html',
-        testMintSimple: 'test-mint-simple.html'
+        main: 'index.html'
       }
     }
   },

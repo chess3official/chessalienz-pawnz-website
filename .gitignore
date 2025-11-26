@@ -1,6 +1,19 @@
 node_modules/
 dist/
+output/
 .DS_Store
 *.log
 .env
 .env.local
+
+# Old development files
+MOBILE-MENU-FIX.md
+PRESALE-FILES-README.md
+presale.html
+presale-mainnet.html
+test-mint.html
+test-mint-simple.html
+convert-webp-to-mp4.py
+create-carousel-video-pillow.py
+create-carousel-video.py
+create-carousel-webp.py
